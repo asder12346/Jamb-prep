@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { doc, onSnapshot, updateDoc } from 'firebase/firestore';
 import { db, handleFirestoreError, OperationType } from '../firebase';
 import { useAuth } from '../context/AuthContext';
-import { BookOpen, LogOut, Trophy, PlayCircle, X } from 'lucide-react';
+import { BookOpen, LogOut, Trophy, PlayCircle, X, CheckCircle2, AlertCircle } from 'lucide-react';
 import { SUBJECTS } from '../data/jamb_data';
 
 export default function Dashboard() {
@@ -82,38 +82,48 @@ export default function Dashboard() {
   };
 
   const startExam = () => {
-    if (selectedSubjects.length === 0) {
-      alert("Please select at least one subject to start the exam.");
+    if (selectedSubjects.length !== 4) {
+      alert("Please select exactly 4 subjects to start the mock exam.");
       return;
     }
     navigate('/exam');
   };
 
   if (loading) {
-    return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      </div>
+    );
   }
+
+  const subjectsNeeded = 4 - selectedSubjects.length;
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <nav className="bg-white shadow-sm">
+      <nav className="bg-white shadow-sm border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-16">
             <div className="flex items-center">
-              <BookOpen className="h-8 w-8 text-blue-600" />
-              <span className="ml-2 text-xl font-bold text-gray-900">JAMB Prep</span>
+              <div className="bg-blue-600 p-1.5 rounded-lg mr-2">
+                <BookOpen className="h-6 w-6 text-white" />
+              </div>
+              <span className="text-xl font-bold text-gray-900">JAMB PrepMaster</span>
             </div>
             <div className="flex items-center space-x-4">
               <button
                 onClick={() => navigate('/leaderboard')}
-                className="text-gray-500 hover:text-gray-700 flex items-center"
+                className="text-gray-600 hover:text-blue-600 flex items-center font-medium transition-colors"
               >
-                <Trophy className="h-5 w-5 mr-1" />
-                Leaderboard
+                <Trophy className="h-5 w-5 mr-1.5 text-yellow-500" />
+                <span className="hidden sm:inline">Leaderboard</span>
               </button>
-              <span className="text-sm text-gray-700">Hello, {user?.displayName}</span>
+              <div className="hidden sm:block w-px h-6 bg-gray-200 mx-2"></div>
+              <span className="text-sm font-medium text-gray-700 hidden md:inline">Hi, {user?.displayName?.split(' ')[0]}</span>
               <button
                 onClick={logout}
-                className="text-gray-500 hover:text-gray-700"
+                className="text-gray-500 hover:text-red-600 transition-colors p-2 rounded-full hover:bg-red-50"
+                title="Sign out"
               >
                 <LogOut className="h-5 w-5" />
               </button>
@@ -122,18 +132,31 @@ export default function Dashboard() {
         </div>
       </nav>
 
-      <main className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
-        <div className="px-4 py-6 sm:px-0">
-          <div className="bg-white rounded-lg shadow px-5 py-6 sm:px-6">
-            <h2 className="text-lg font-medium text-gray-900 mb-4">Select 3 Additional Subjects (Use of English is compulsory)</h2>
-            
-            <div className="flex gap-4 mb-6">
+      <main className="max-w-4xl mx-auto py-10 px-4 sm:px-6 lg:px-8">
+        <div className="mb-8">
+          <h1 className="text-3xl font-extrabold text-gray-900 tracking-tight">Your Dashboard</h1>
+          <p className="mt-2 text-lg text-gray-600">Configure your exam settings below before proceeding to the CBT interface.</p>
+        </div>
+
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
+          <div className="bg-blue-50/50 px-6 py-5 border-b border-gray-200">
+            <h2 className="text-xl font-bold text-gray-900 flex items-center">
+              <CheckCircle2 className="w-5 h-5 text-blue-600 mr-2" />
+              1. Select Your Subjects
+            </h2>
+            <p className="mt-1 text-sm text-gray-600 ml-7">
+              JAMB requires exactly 4 subjects. Use of English is compulsory and already added.
+            </p>
+          </div>
+          
+          <div className="p-6">
+            <div className="flex flex-col sm:flex-row gap-4 mb-8">
               <select
                 value={selectedDropdownSubject}
                 onChange={(e) => setSelectedDropdownSubject(e.target.value)}
-                className="flex-1 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 border p-2"
+                className="flex-1 rounded-xl border border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 border p-3 font-medium text-gray-700"
               >
-                <option value="">-- Select a subject --</option>
+                <option value="">-- Choose a subject to add --</option>
                 {SUBJECTS.filter(s => !selectedSubjects.includes(s.id) && s.id !== 'eng').map(subject => (
                   <option key={subject.id} value={subject.id}>{subject.name}</option>
                 ))}
@@ -141,13 +164,13 @@ export default function Dashboard() {
               <button
                 onClick={handleAddSubject}
                 disabled={!selectedDropdownSubject || selectedSubjects.length >= 4}
-                className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="px-6 py-3 bg-gray-900 text-white rounded-xl font-semibold hover:bg-gray-800 disabled:bg-gray-300 disabled:text-gray-500 disabled:cursor-not-allowed transition-colors"
               >
                 Add Subject
               </button>
             </div>
 
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               {selectedSubjects.map((subjectId) => {
                 const subject = SUBJECTS.find(s => s.id === subjectId);
                 if (!subject) return null;
@@ -155,13 +178,16 @@ export default function Dashboard() {
                 return (
                   <div
                     key={subject.id}
-                    className={`relative rounded-lg border p-4 flex items-center justify-between ${isEnglish ? 'border-green-300 bg-green-50' : 'border-blue-200 bg-blue-50'}`}
+                    className={`relative rounded-xl border p-4 flex items-center justify-between ${isEnglish ? 'border-green-300 bg-green-50 shadow-sm' : 'border-blue-200 bg-blue-50 shadow-sm'}`}
                   >
-                    <span className={`font-medium ${isEnglish ? 'text-green-900' : 'text-blue-900'}`}>{subject.name} {isEnglish && '(Compulsory)'}</span>
+                    <span className={`font-semibold ${isEnglish ? 'text-green-900' : 'text-blue-900'}`}>
+                      {subject.name} {isEnglish && <span className="text-green-600 text-xs ml-1 font-bold uppercase">(Compulsory)</span>}
+                    </span>
                     {!isEnglish && (
                       <button
                         onClick={() => handleRemoveSubject(subject.id)}
-                        className="text-blue-400 hover:text-blue-600"
+                        className="text-blue-400 hover:text-red-500 hover:bg-red-50 p-1.5 rounded-lg transition-colors"
+                        title="Remove subject"
                       >
                         <X className="h-5 w-5" />
                       </button>
@@ -169,30 +195,39 @@ export default function Dashboard() {
                   </div>
                 );
               })}
-              {selectedSubjects.length === 1 && (
-                <div className="col-span-full text-center py-4 text-gray-500">
-                  Please add 3 more subjects to start the exam.
+              
+              {/* Placeholders for empty slots */}
+              {Array.from({ length: Math.max(0, 4 - selectedSubjects.length) }).map((_, i) => (
+                <div key={`empty-${i}`} className="rounded-xl border-2 border-dashed border-gray-200 bg-gray-50 p-4 flex items-center justify-center text-gray-400 font-medium h-[68px]">
+                  Empty Slot
                 </div>
-              )}
+              ))}
             </div>
 
-            <div className="mt-8 border-t border-gray-200 pt-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <h3 className="text-lg font-medium text-gray-900">Ready to practice?</h3>
-                  <p className="text-sm text-gray-500">
-                    You have selected {selectedSubjects.length} of 4 required subjects.
-                  </p>
-                </div>
-                <button
-                  onClick={startExam}
-                  disabled={selectedSubjects.length !== 4}
-                  className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  <PlayCircle className="h-5 w-5 mr-2" />
-                  Start Exam
-                </button>
+            {subjectsNeeded > 0 && (
+              <div className="mt-6 flex items-center space-x-2 text-amber-600 bg-amber-50 p-3 rounded-lg border border-amber-200">
+                <AlertCircle className="w-5 h-5 flex-shrink-0" />
+                <span className="text-sm font-medium">Please add {subjectsNeeded} more {subjectsNeeded === 1 ? 'subject' : 'subjects'} to continue.</span>
               </div>
+            )}
+          </div>
+
+          <div className="bg-gray-50 px-6 py-6 border-t border-gray-200">
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+              <div>
+                <h3 className="text-lg font-bold text-gray-900">2. Ready to begin?</h3>
+                <p className="text-sm text-gray-600">
+                  You will have 2 hours to complete 180 questions across your chosen subjects.
+                </p>
+              </div>
+              <button
+                onClick={startExam}
+                disabled={selectedSubjects.length !== 4}
+                className="w-full sm:w-auto inline-flex items-center justify-center px-8 py-3.5 border border-transparent rounded-xl shadow-lg text-base font-bold text-white bg-blue-600 hover:bg-blue-700 hover:scale-105 transition-all focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:hover:scale-100 disabled:cursor-not-allowed group"
+              >
+                <PlayCircle className="h-5 w-5 mr-2 group-disabled:text-blue-300" />
+                Start Mock Exam
+              </button>
             </div>
           </div>
         </div>
