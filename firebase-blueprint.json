@@ -1,0 +1,71 @@
+{
+  "entities": {
+    "User": {
+      "title": "User",
+      "description": "A user of the JAMB prep app.",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string", "description": "User's full name." },
+        "email": { "type": "string", "format": "email", "description": "User's email address." },
+        "role": { "type": "string", "enum": ["admin", "student"], "description": "User's role." },
+        "selectedSubjects": { "type": "array", "items": { "type": "string" }, "description": "List of subject IDs selected by the user." }
+      },
+      "required": ["name", "email", "role"]
+    },
+    "Subject": {
+      "title": "Subject",
+      "description": "A JAMB subject.",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string", "description": "Name of the subject." }
+      },
+      "required": ["name"]
+    },
+    "Question": {
+      "title": "Question",
+      "description": "A multiple choice question for a subject.",
+      "type": "object",
+      "properties": {
+        "subjectId": { "type": "string", "description": "ID of the subject this question belongs to." },
+        "text": { "type": "string", "description": "The question text." },
+        "optionA": { "type": "string", "description": "Option A" },
+        "optionB": { "type": "string", "description": "Option B" },
+        "optionC": { "type": "string", "description": "Option C" },
+        "optionD": { "type": "string", "description": "Option D" },
+        "correctOption": { "type": "string", "enum": ["A", "B", "C", "D"], "description": "The correct option." }
+      },
+      "required": ["subjectId", "text", "optionA", "optionB", "optionC", "optionD", "correctOption"]
+    },
+    "ExamResult": {
+      "title": "ExamResult",
+      "description": "A user's result for a practice exam.",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string", "description": "ID of the user who took the exam." },
+        "subjectId": { "type": "string", "description": "ID of the subject." },
+        "score": { "type": "number", "description": "Number of correct answers." },
+        "total": { "type": "number", "description": "Total number of questions." },
+        "date": { "type": "string", "format": "date-time", "description": "When the exam was taken." }
+      },
+      "required": ["userId", "subjectId", "score", "total", "date"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": { "$ref": "#/entities/User" },
+      "description": "Stores user profiles."
+    },
+    "/subjects/{subjectId}": {
+      "schema": { "$ref": "#/entities/Subject" },
+      "description": "Stores available subjects."
+    },
+    "/questions/{questionId}": {
+      "schema": { "$ref": "#/entities/Question" },
+      "description": "Stores exam questions."
+    },
+    "/exam_results/{resultId}": {
+      "schema": { "$ref": "#/entities/ExamResult" },
+      "description": "Stores user exam results."
+    }
+  }
+}
