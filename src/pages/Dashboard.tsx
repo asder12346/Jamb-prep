@@ -171,7 +171,7 @@ export default function Dashboard() {
               <div className="bg-blue-600 p-1.5 rounded-lg mr-2">
                 <BookOpen className="h-6 w-6 text-white" />
               </div>
-              <span className="text-xl font-bold text-gray-900 hidden sm:block">JAMB PrepMaster</span>
+              <span className="text-xl font-bold text-gray-900 hidden sm:block">JambPrep</span>
             </div>
             <div className="flex items-center space-x-4">
               <button

@@ -4,7 +4,7 @@ import {
   ChevronRight, Laptop, Users, Zap, Shield, HelpCircle, PlayCircle,
   Twitter, Facebook, Instagram, Mail, ArrowRight, Sparkles
 } from 'lucide-react';
-import { Navigate } from 'react-router-dom';
+import { useNavigate, Navigate } from 'react-router-dom';
 import { motion } from 'motion/react';
 
 const FADE_UP_ANIMATION_VARIANTS = {
@@ -18,7 +18,8 @@ const STAGGER_CHILDREN_VARIANTS = {
 };
 
 export default function Landing() {
-  const { user, login } = useAuth();
+  const { user } = useAuth();
+  const navigate = useNavigate();
 
   if (user) {
     return <Navigate to="/dashboard" replace />;
@@ -33,7 +34,7 @@ export default function Landing() {
             <div className="bg-blue-600 p-2 rounded-xl shadow-sm shadow-blue-200 flex items-center justify-center">
               <BookOpen className="h-5 w-5 text-white" />
             </div>
-            <span className="text-xl font-extrabold tracking-tight text-gray-900">JAMB PrepMaster</span>
+            <span className="text-xl font-extrabold tracking-tight text-gray-900">JambPrep</span>
           </div>
           <div className="hidden md:flex items-center space-x-8 text-sm font-medium text-gray-600">
             <a href="#features" className="hover:text-blue-600 transition-colors">Features</a>
@@ -42,13 +43,13 @@ export default function Landing() {
           </div>
           <div className="flex items-center space-x-4">
             <button
-              onClick={login}
+              onClick={() => navigate('/login')}
               className="hidden md:inline-flex items-center justify-center px-4 py-2 text-sm font-semibold text-gray-700 hover:text-blue-600 transition-colors"
             >
               Sign In
             </button>
             <button
-              onClick={login}
+              onClick={() => navigate('/signup')}
               className="inline-flex items-center justify-center px-6 py-2.5 text-sm font-semibold text-white bg-gray-900 rounded-full hover:bg-gray-800 transition-colors shadow-sm"
             >
               Get Started
@@ -93,7 +94,7 @@ export default function Landing() {
             
             <motion.div variants={FADE_UP_ANIMATION_VARIANTS} className="flex flex-col sm:flex-row items-center justify-center space-y-4 sm:space-y-0 sm:space-x-4">
               <button
-                onClick={login}
+                onClick={() => navigate('/signup')}
                 className="w-full sm:w-auto inline-flex items-center justify-center px-8 py-4 text-base font-bold text-white bg-blue-600 rounded-full hover:bg-blue-700 transition-all hover:scale-105 shadow-lg shadow-blue-200/50 group"
               >
                 Start Practicing Now
@@ -412,7 +413,7 @@ export default function Landing() {
             
             <div className="space-y-6">
               {[
-                { q: "Is JAMB PrepMaster completely free?", a: "Yes. Basic mock exams and access to the global leaderboard are 100% free for all Nigerian students." },
+                { q: "Is JambPrep completely free?", a: "Yes. Basic mock exams and access to the global leaderboard are 100% free for all Nigerian students." },
                 { q: "Do you use actual past questions?", a: "We curate high-quality questions mimicking past questions from official JAMB repositories stretching back to 2010." },
                 { q: "Is Use of English strictly enforced?", a: "Yes! Just like the real exam, Use of English is compulsory and constitutes 60 questions, while your other 3 chosen subjects contain 40 questions each." },
               ].map((faq, i) => (
@@ -444,7 +445,7 @@ export default function Landing() {
             <h2 className="text-4xl md:text-5xl font-extrabold text-white mb-6 tracking-tight">Don't leave your admission to chance.</h2>
             <p className="text-xl text-blue-100 mb-10 max-w-2xl mx-auto">Join thousands of students pushing their limits today. Start practicing and see your name on the leaderboard.</p>
             <button
-              onClick={login}
+              onClick={() => navigate('/signup')}
               className="inline-flex items-center justify-center px-10 py-5 text-lg font-bold text-blue-900 bg-white rounded-full hover:bg-gray-50 hover:scale-105 transition-all shadow-xl hover:shadow-2xl"
             >
               Get Started for Free
@@ -465,7 +466,7 @@ export default function Landing() {
                 <div className="bg-blue-600 p-2 rounded-xl">
                   <BookOpen className="h-5 w-5 text-white" />
                 </div>
-                <span className="text-2xl font-extrabold tracking-tight text-white">JAMB PrepMaster</span>
+                <span className="text-2xl font-extrabold tracking-tight text-white">JambPrep</span>
               </div>
               <p className="text-gray-400 leading-relaxed mb-6 max-w-sm">
                 Built by a community of educators aiming to democratize access to high-quality JAMB CBT mock exams across Nigeria and beyond.
@@ -518,7 +519,7 @@ export default function Landing() {
           </div>
 
           <div className="flex flex-col md:flex-row justify-between items-center text-sm">
-            <p>&copy; {new Date().getFullYear()} JAMB PrepMaster Inc. All rights reserved.</p>
+            <p>&copy; {new Date().getFullYear()} JambPrep Inc. All rights reserved.</p>
             <p className="mt-4 md:mt-0 text-center md:text-right">
               Disclaimer: Not officially affiliated with the Joint Admissions and Matriculation Board (JAMB).
             </p>

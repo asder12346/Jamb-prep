@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useState } from 'react';
-import { User, onAuthStateChanged, signInWithPopup, signOut } from 'firebase/auth';
+import { User, onAuthStateChanged, signInWithPopup, signOut, createUserWithEmailAndPassword, signInWithEmailAndPassword, updateProfile } from 'firebase/auth';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { auth, db, googleProvider, handleFirestoreError, OperationType } from '../firebase';
 
@@ -8,6 +8,8 @@ interface AuthContextType {
   userRole: 'admin' | 'student' | null;
   loading: boolean;
   login: () => Promise<void>;
+  signupWithEmail: (email: string, password: string, name: string) => Promise<void>;
+  loginWithEmail: (email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
 }
 
@@ -58,7 +60,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       await signInWithPopup(auth, googleProvider);
     } catch (error: any) {
-      // Ignore user cancellations and duplicate requests
       if (
         error.code === 'auth/popup-closed-by-user' || 
         error.code === 'auth/cancelled-popup-request'
@@ -72,6 +73,29 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  const signupWithEmail = async (email: string, password: string, name: string) => {
+    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+    // Automatically update the profile with the name
+    if (userCredential.user) {
+      await updateProfile(userCredential.user, { displayName: name });
+      
+      // We also wait to create user document here to be safe and ensure the name is there.
+      const userDocRef = doc(db, 'users', userCredential.user.uid);
+      const role = email === 'samuelabedecornelius@gmail.com' ? 'admin' : 'student';
+      await setDoc(userDocRef, {
+        name: name,
+        email: email,
+        role: role,
+        selectedSubjects: []
+      });
+      setUserRole(role);
+    }
+  };
+
+  const loginWithEmail = async (email: string, password: string) => {
+    await signInWithEmailAndPassword(auth, email, password);
+  };
+
   const logout = async () => {
     try {
       await signOut(auth);
@@ -81,7 +105,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, userRole, loading, login, logout }}>
+    <AuthContext.Provider value={{ user, userRole, loading, login, signupWithEmail, loginWithEmail, logout }}>
       {children}
     </AuthContext.Provider>
   );

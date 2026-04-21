@@ -1,6 +1,6 @@
 {
-  "name": "",
-  "description": "",
+  "name": "JambPrep",
+  "description": "A modern JAMB CBT preparation platform.",
   "requestFramePermissions": [],
   "majorCapabilities": []
 }

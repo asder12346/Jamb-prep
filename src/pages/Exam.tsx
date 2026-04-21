@@ -352,6 +352,54 @@ export default function Exam() {
                  </div>
                )}
                
+               <div className="mb-10">
+                 <h3 className="text-lg font-bold text-gray-900 mb-4 border-b border-gray-100 pb-2">Subject Performance Summary</h3>
+                 <div className="overflow-x-auto">
+                   <table className="w-full text-sm text-left">
+                     <thead className="bg-gray-50 text-gray-600 font-semibold uppercase text-xs">
+                       <tr>
+                         <th className="px-4 py-3 rounded-tl-lg">Subject</th>
+                         <th className="px-4 py-3 text-center">Total</th>
+                         <th className="px-4 py-3 text-center text-green-600">Correct</th>
+                         <th className="px-4 py-3 text-center text-red-600">Incorrect</th>
+                         <th className="px-4 py-3 text-center text-gray-500 rounded-tr-lg">Unanswered</th>
+                       </tr>
+                     </thead>
+                     <tbody className="divide-y divide-gray-100">
+                       {examSubjects.map(subId => {
+                         const subQs = questions.filter(q => q.subjectId === subId);
+                         const subName = SUBJECTS.find(s => s.id === subId)?.name || subId;
+                         let correct = 0;
+                         let incorrect = 0;
+                         let unans = 0;
+                         
+                         subQs.forEach(q => {
+                           if (answers[q.id]) {
+                             if (answers[q.id] === q.correctOption) {
+                               correct++;
+                             } else {
+                               incorrect++;
+                             }
+                           } else {
+                             unans++;
+                           }
+                         });
+
+                         return (
+                           <tr key={subId} className="hover:bg-gray-50/50">
+                             <td className="px-4 py-3 font-medium text-gray-900">{subName}</td>
+                             <td className="px-4 py-3 text-center font-semibold text-gray-700">{subQs.length}</td>
+                             <td className="px-4 py-3 text-center font-bold text-green-600">{correct}</td>
+                             <td className="px-4 py-3 text-center font-bold text-red-600">{incorrect}</td>
+                             <td className="px-4 py-3 text-center font-medium text-gray-500">{unans}</td>
+                           </tr>
+                         );
+                       })}
+                     </tbody>
+                   </table>
+                 </div>
+               </div>
+               
                <div className="flex flex-col sm:flex-row gap-4 justify-center">
                  <button
                    onClick={() => setShowReviewScreen(false)}
