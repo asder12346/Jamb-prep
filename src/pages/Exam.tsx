@@ -75,14 +75,14 @@ export default function Exam() {
   }, [user, navigate]);
 
   useEffect(() => {
-    if (loading || examFinished || showReviewScreen || timeLeft <= 0) return;
+    if (loading || examFinished || timeLeft <= 0) return;
 
     const timer = setInterval(() => {
       setTimeLeft((prev) => Math.max(0, prev - 1));
     }, 1000);
 
     return () => clearInterval(timer);
-  }, [loading, examFinished, showReviewScreen, timeLeft]);
+  }, [loading, examFinished, timeLeft]);
 
   // Auto-submit when time is strictly zero
   useEffect(() => {
@@ -234,17 +234,49 @@ export default function Exam() {
               </div>
 
               <h3 className="text-lg font-bold text-gray-900 mb-5">Subject Breakdown</h3>
-              <div className="space-y-5 mb-10">
+              <div className="space-y-6 mb-10">
                  {Object.entries(breakdown).map(([subId, data]: [string, any]) => {
                     const subName = SUBJECTS.find(s => s.id === subId)?.name || subId;
                     const subPercent = Math.round((data.correct / data.total) * 100);
+                    
+                    const getSubjectFeedback = (id: string, pct: number) => {
+                      if (pct >= 70) return "Excellent performance! Maintain your current study routine.";
+                      if (pct >= 50) {
+                        if (id === 'eng') return "Fair score. Practice more on Lexis, Structure, and Oral English.";
+                        if (id === 'math') return "Average effort. Focus on speed and accuracy with Algebra and Geometry.";
+                        if (id === 'phy') return "Review calculations in Kinematics and Thermodynamics to boost your score.";
+                        if (id === 'chem') return "Brush up on Organic Chemistry and Stoichiometry to improve.";
+                        if (id === 'bio') return "Good, but review Genetics and Organ Systems for a better edge.";
+                        if (id === 'eco') return "Work on Elasticity calculations and Market Structures.";
+                        if (id === 'gov') return "Review the features of different Electoral Systems and Constitutions.";
+                        if (id === 'geo') return "Focus on Map Reading and Geomorphic forces.";
+                        if (id === 'lit') return "Read the set books more thoroughly and revise Poetic devices.";
+                        if (id === 'crs') return "Review Biblical History and the Epistles.";
+                        return "You're getting there. Review your incorrect answers carefully.";
+                      }
+                      // Below 50%
+                      if (id === 'eng') return "Needs work. Heavily review Grammar fundamentals and comprehension tactics.";
+                      if (id === 'math') return "Critical: Revisit core foundational formulas and practice past questions daily.";
+                      if (id === 'phy') return "Requires intense revision of basic principles, formulas, and units.";
+                      if (id === 'chem') return "Focus on learning fundamental concepts like Atomic Structure, Bonding, and Equations.";
+                      if (id === 'bio') return "Needs serious attention. Memorize key biological terms and characteristics of living things.";
+                      if (id === 'eco') return "Re-study core economic principles, demand/supply graphs, and basics.";
+                      if (id === 'gov') return "Revise fundamental concepts of governance, rule of law, and pre-colonial systems.";
+                      if (id === 'geo') return "Start with basic physical geography and climate zones.";
+                      if (id === 'lit') return "You need to deeply familiarize yourself with the recommended texts and literary terms.";
+                      if (id === 'crs') return "Read the recommended Biblical chapters thoroughly to grasp the key theological themes.";
+                      return "Requires significant improvement. Consult your textbooks and teachers.";
+                    };
+
+                    const feedback = getSubjectFeedback(subId, subPercent);
+
                     return (
                       <div key={subId} className="group">
                         <div className="flex justify-between items-center mb-1.5">
                           <span className="font-bold text-gray-700 text-sm">{subName}</span>
                           <span className="font-bold text-gray-900 text-sm">{data.correct} <span className="text-gray-400">/ {data.total}</span></span>
                         </div>
-                        <div className="w-full bg-gray-100 rounded-full h-3 overflow-hidden border border-gray-200/50">
+                        <div className="w-full bg-gray-100 rounded-full h-3 overflow-hidden border border-gray-200/50 mb-1.5">
                           <div 
                             className={`h-full rounded-full transition-all duration-1000 ${
                               subPercent >= 70 ? 'bg-green-500' : subPercent >= 50 ? 'bg-amber-500' : 'bg-red-500'
@@ -252,6 +284,9 @@ export default function Exam() {
                             style={{ width: `${subPercent}%` }}
                           />
                         </div>
+                        <p className={`text-xs font-medium ${subPercent >= 70 ? 'text-green-600' : subPercent >= 50 ? 'text-amber-600' : 'text-red-500'}`}>
+                          Tip: {feedback}
+                        </p>
                       </div>
                     );
                  })}
@@ -286,7 +321,11 @@ export default function Exam() {
       <div className="min-h-screen bg-gray-50 py-10 px-4 sm:px-6 lg:px-8">
         <div className="max-w-2xl mx-auto">
           <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
-            <div className="bg-blue-50/50 p-6 sm:p-10 border-b border-gray-200 text-center">
+            <div className="bg-blue-50/50 p-6 sm:p-10 border-b border-gray-200 text-center relative">
+               <div className={`absolute top-4 right-4 flex items-center font-mono text-sm font-bold bg-white px-3 py-1 rounded-lg border ${timeLeft < 300 ? 'text-red-600 border-red-200 bg-red-50 animate-pulse' : 'text-gray-900 border-gray-200'}`}>
+                 <Clock className="h-4 w-4 mr-2" />
+                 {formatTime(timeLeft)}
+               </div>
                <h2 className="text-3xl font-extrabold text-gray-900 mb-2">Exam Review</h2>
                <p className="text-gray-600">Please review your exam status before final submission.</p>
             </div>

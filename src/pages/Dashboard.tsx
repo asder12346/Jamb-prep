@@ -14,7 +14,7 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(true);
   
   const [recentExams, setRecentExams] = useState<any[]>([]);
-  const [stats, setStats] = useState({ predictedScore: 0, totalExams: 0, avgAccuracy: 0 });
+  const [stats, setStats] = useState({ predictedScore: 0, totalExams: 0, avgAccuracy: 0, weakestSubjects: [] as {id: string, accuracy: number}[] });
 
   useEffect(() => {
     if (!user) return;
@@ -55,15 +55,45 @@ export default function Dashboard() {
         if (exams.length > 0) {
           let totalScore = 0;
           let totalQs = 0;
+          
+          // Data structure for weak subject analysis
+          const subjectPerformances: Record<string, { correct: number, total: number }> = {};
+
           exams.forEach((ex: any) => {
             totalScore += ex.score;
             totalQs += ex.total;
+            
+            // Build subject breakdown aggregate
+            if (ex.breakdown) {
+               Object.keys(ex.breakdown).forEach(subId => {
+                  if (!subjectPerformances[subId]) {
+                     subjectPerformances[subId] = { correct: 0, total: 0 };
+                  }
+                  subjectPerformances[subId].correct += ex.breakdown[subId].correct;
+                  subjectPerformances[subId].total += ex.breakdown[subId].total;
+               });
+            }
           });
+          
           const accuracy = totalQs > 0 ? (totalScore / totalQs) : 0;
+          
+          // Calculate weakest subjects
+          const subjectAccuracies = Object.keys(subjectPerformances).map(subId => ({
+             id: subId,
+             accuracy: subjectPerformances[subId].total > 0 
+                ? subjectPerformances[subId].correct / subjectPerformances[subId].total 
+                : 0
+          }));
+          
+          subjectAccuracies.sort((a, b) => a.accuracy - b.accuracy);
+          const weakestSubjects = subjectAccuracies.slice(0, 2);
+
           setStats({
             predictedScore: Math.round(accuracy * 400),
             totalExams: exams.length,
-            avgAccuracy: Math.round(accuracy * 100)
+            avgAccuracy: Math.round(accuracy * 100),
+            // @ts-ignore
+            weakestSubjects: weakestSubjects
           });
         }
       } catch (err) {
@@ -372,13 +402,45 @@ export default function Dashboard() {
                    <Target className="w-5 h-5 mr-2 text-indigo-500" />
                    Smart Recommendations
                  </h3>
-                 <p className="text-sm text-indigo-700/80 mb-4 leading-relaxed">
-                   Complete more exams to allow our AI to generate a personalized practice flow identifying your weakest subjects.
-                 </p>
-                 <div className="h-2 w-full bg-indigo-100 rounded-full overflow-hidden">
-                   <div className="h-full bg-indigo-400 w-1/3 rounded-full"></div>
-                 </div>
-                 <div className="text-xs text-indigo-500 font-medium mt-2 text-right">Analyzing data...</div>
+                 
+                 {stats.totalExams === 0 ? (
+                   <>
+                     <p className="text-sm text-indigo-700/80 mb-4 leading-relaxed">
+                       Complete more exams to allow our AI to generate a personalized practice flow identifying your weakest subjects.
+                     </p>
+                     <div className="h-2 w-full bg-indigo-100 rounded-full overflow-hidden">
+                       <div className="h-full bg-indigo-400 w-1/3 rounded-full"></div>
+                     </div>
+                     <div className="text-xs text-indigo-500 font-medium mt-2 text-right">Analyzing data...</div>
+                   </>
+                 ) : (
+                   <div className="space-y-4">
+                     <p className="text-sm text-indigo-800 font-medium">Based on your past {stats.totalExams} mock exams, we recommend focusing on:</p>
+                     
+                     <div className="space-y-3">
+                       {stats.weakestSubjects.length > 0 ? stats.weakestSubjects.map((sub, idx) => {
+                         const subName = SUBJECTS.find(s => s.id === sub.id)?.name || sub.id;
+                         return (
+                           <div key={idx} className="bg-white p-3 rounded-xl border border-indigo-100 shadow-sm flex items-center justify-between">
+                             <div className="flex items-center space-x-3">
+                               <div className="w-8 h-8 rounded-full bg-red-50 text-red-500 flex items-center justify-center font-bold text-xs">
+                                 {Math.round(sub.accuracy * 100)}%
+                               </div>
+                               <span className="font-semibold text-gray-800 text-sm">{subName}</span>
+                             </div>
+                             <div className="text-xs font-bold text-indigo-600 uppercase tracking-wider">Priority</div>
+                           </div>
+                         );
+                       }) : (
+                          <div className="text-sm text-gray-500 italic">No weak subjects detected yet. Great job!</div>
+                       )}
+                     </div>
+                     
+                     <p className="text-xs text-indigo-600/70 mt-4 border-t border-indigo-100 pt-3">
+                       Make sure these subjects are included in your next CBT configuration to improve your global ranking.
+                     </p>
+                   </div>
+                 )}
                </div>
             </div>
           </div>
