@@ -5,24 +5,33 @@ import { db, handleFirestoreError, OperationType } from '../firebase';
 import { useAuth } from '../context/AuthContext';
 import { BookOpen, LogOut, Trophy, PlayCircle, X, CheckCircle2, AlertCircle, Target, Flame, Activity, History, ArrowRight } from 'lucide-react';
 import { SUBJECTS } from '../data/jamb_data';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 
 export default function Dashboard() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const [selectedSubjects, setSelectedSubjects] = useState<string[]>([]);
   const [selectedDropdownSubject, setSelectedDropdownSubject] = useState<string>('');
+  const [profilePic, setProfilePic] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   
   const [recentExams, setRecentExams] = useState<any[]>([]);
+  const [chartData, setChartData] = useState<any[]>([]);
   const [stats, setStats] = useState({ predictedScore: 0, totalExams: 0, avgAccuracy: 0, weakestSubjects: [] as {id: string, accuracy: number}[] });
 
   useEffect(() => {
     if (!user) return;
 
-    // Listen to user's selected subjects
+    // Listen to user's selected subjects and profile details
     const unsubscribeUser = onSnapshot(doc(db, 'users', user.uid), async (docSnap) => {
       if (docSnap.exists()) {
-        const dbSubjects = docSnap.data().selectedSubjects || [];
+        const data = docSnap.data();
+        const dbSubjects = data.selectedSubjects || [];
+        
+        if (data.profilePicture) {
+           setProfilePic(data.profilePicture);
+        }
+        
         if (!dbSubjects.includes('eng')) {
           const withEng = ['eng', ...dbSubjects];
           setSelectedSubjects(withEng);
@@ -51,6 +60,18 @@ export default function Dashboard() {
         const exams = snap.docs.map(d => ({id: d.id, ...d.data()})).sort((a: any, b: any) => new Date(b.date).getTime() - new Date(a.date).getTime());
         
         setRecentExams(exams.slice(0, 5)); // Keep top 5 latest
+        
+        // Prepare chart data chronologically
+        const chronologicalExams = [...exams].reverse();
+        const dataForChart = chronologicalExams.map((exam: any, index: number) => {
+           let accuracy = exam.total > 0 ? Math.round((exam.score / exam.total) * 100) : 0;
+           return {
+              name: `Exam ${index + 1}`,
+              date: new Date(exam.date).toLocaleDateString(undefined, { month: 'short', day: 'numeric' }),
+              accuracy: accuracy,
+           };
+        });
+        setChartData(dataForChart);
         
         if (exams.length > 0) {
           let totalScore = 0;
@@ -182,12 +203,20 @@ export default function Dashboard() {
                 <span className="hidden sm:inline">Leaderboard</span>
               </button>
               <div className="hidden sm:block w-px h-6 bg-gray-200 mx-1"></div>
-              <div className="flex items-center space-x-3">
-                 <div className="h-8 w-8 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center font-bold shadow-sm">
-                   {user?.displayName?.charAt(0) || 'U'}
+              <button 
+                 onClick={() => navigate('/profile')}
+                 className="flex items-center space-x-3 p-1.5 pt-1.5 pb-1.5 rounded-full hover:bg-gray-100 transition-colors pr-3"
+                 title="Go to Profile"
+              >
+                 <div className="h-8 w-8 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center font-bold shadow-sm overflow-hidden border border-blue-200">
+                   {profilePic ? (
+                     <img src={profilePic} alt="Profile" className="w-full h-full object-cover" />
+                   ) : (
+                     user?.displayName?.charAt(0)?.toUpperCase() || 'U'
+                   )}
                  </div>
                  <span className="text-sm font-medium text-gray-700 hidden md:inline">Hi, {user?.displayName?.split(' ')[0]}</span>
-              </div>
+              </button>
               <button
                 onClick={logout}
                 className="text-gray-400 hover:text-red-600 transition-colors p-2 rounded-full hover:bg-red-50 ml-2"
@@ -260,6 +289,39 @@ export default function Dashboard() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Main Content Area */}
           <div className="lg:col-span-2 space-y-8">
+            
+            {/* Visual Progress Tracker */}
+            {chartData.length > 0 && (
+              <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 relative">
+                 <h2 className="text-xl font-bold text-gray-900 flex items-center mb-6">
+                    <Activity className="w-5 h-5 text-blue-600 mr-2" />
+                    Accuracy Over Time
+                 </h2>
+                 <div className="h-64 w-full">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <LineChart data={chartData} margin={{ top: 5, right: 20, bottom: 5, left: 0 }}>
+                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f3f4f6" />
+                        <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#6B7280' }} dy={10} />
+                        <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#6B7280' }} dx={-10} domain={[0, 100]} />
+                        <Tooltip 
+                           contentStyle={{ borderRadius: '12px', border: '1px solid #f3f4f6', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)' }}
+                           labelStyle={{ fontWeight: 'bold', color: '#111827', marginBottom: '4px' }}
+                           itemStyle={{ color: '#2563EB', fontWeight: 'bold' }}
+                           formatter={(value: number) => [`${value}%`, 'Accuracy']}
+                           labelFormatter={(label: string, payload: any[]) => {
+                              if (payload && payload.length > 0) {
+                                 return `${label} (${payload[0].payload.date})`;
+                              }
+                              return label;
+                           }}
+                        />
+                        <Line type="monotone" dataKey="accuracy" stroke="#2563EB" strokeWidth={3} dot={{ r: 4, strokeWidth: 2, fill: '#fff', stroke: '#2563EB' }} activeDot={{ r: 6, strokeWidth: 0, fill: '#2563EB' }} />
+                      </LineChart>
+                    </ResponsiveContainer>
+                 </div>
+              </div>
+            )}
+
             {/* Subject Configuration & Start Exam */}
             <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
               <div className="bg-gradient-to-r from-blue-50 to-indigo-50 px-6 py-5 border-b border-gray-200 flex items-center justify-between">
