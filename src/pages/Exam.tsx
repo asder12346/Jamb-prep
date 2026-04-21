@@ -187,61 +187,80 @@ export default function Exam() {
     const percentage = Math.round((score / total) * 100);
 
     return (
-      <div className="min-h-screen bg-gray-50 p-4 sm:p-8">
-        <div className="max-w-4xl mx-auto">
-          <div className="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden mb-8">
-            <div className="bg-gradient-to-r from-blue-600 to-indigo-700 px-8 py-12 text-center text-white relative">
-               <div className="absolute top-0 right-0 p-8 opacity-10">
-                 <BarChart2 className="w-48 h-48" />
+      <div className="min-h-screen bg-gray-50 p-4 sm:p-8 flex items-center justify-center">
+        <div className="max-w-5xl w-full mx-auto">
+          <div className="bg-white rounded-3xl shadow-xl overflow-hidden border border-gray-100 flex flex-col md:flex-row mb-8">
+            
+            {/* Left/Top Area - Congratulations & Image */}
+            <div className="md:w-5/12 bg-gradient-to-br from-blue-600 via-indigo-600 to-blue-800 relative text-center py-12 px-6 flex flex-col justify-center overflow-hidden">
+               {/* Decorative overlays */}
+               <div className="absolute top-0 right-0 p-8 opacity-10 blur-[2px]">
+                 <BarChart2 className="w-48 h-48 text-white" />
                </div>
-               <div className="relative z-10 w-24 h-24 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-6 backdrop-blur-md">
-                 <CheckCircle2 className="h-12 w-12 text-white" />
+               
+               <div className="relative z-10 w-32 h-32 mx-auto mb-6 flex items-center justify-center rounded-full border-4 border-white/30 overflow-hidden shadow-2xl bg-indigo-200">
+                 <img 
+                   src="https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&w=600&q=80" 
+                   alt="Happy student celebrating"
+                   referrerPolicy="no-referrer"
+                   className="w-full h-full object-cover"
+                 />
                </div>
-               <h1 className="text-4xl font-black mb-2 relative z-10">Exam Completed!</h1>
-               <p className="text-blue-100 text-lg font-medium relative z-10">You've successfully finished your Mock CBT.</p>
+               
+               <h1 className="text-3xl font-black text-white mb-2 relative z-10 tracking-tight">Exam Completed!</h1>
+               <p className="text-blue-100 font-medium relative z-10 mb-8 max-w-xs mx-auto">Excellent effort. Here is how you performed on this mock CBT.</p>
+               
+               <div className="bg-white/10 rounded-2xl p-4 backdrop-blur-sm border border-white/20 relative z-10 max-w-xs mx-auto w-full">
+                 <p className="text-sm text-blue-200 uppercase tracking-widest font-bold mb-1">Total Score</p>
+                 <div className="flex items-baseline justify-center text-white">
+                   <span className="text-5xl font-black block leading-none">{score}</span>
+                   <span className="text-xl font-bold ml-2 opacity-70">/ {total}</span>
+                 </div>
+               </div>
             </div>
             
-            <div className="p-8">
-              <div className="flex flex-col sm:flex-row items-center justify-center gap-10 mb-12">
-                <div className="text-center">
-                  <p className="text-sm text-gray-500 font-bold uppercase tracking-wider mb-2">Total Score</p>
-                  <div className="flex items-baseline justify-center">
-                    <span className="text-6xl font-black text-gray-900">{score}</span>
-                    <span className="text-xl font-bold text-gray-400 ml-2">/ {total}</span>
-                  </div>
+            {/* Right/Bottom Area - Detailed Metrics */}
+            <div className="md:w-7/12 p-8 lg:p-12 bg-white flex flex-col justify-center">
+              <div className="flex items-center justify-between mb-8 pb-6 border-b border-gray-100">
+                <div>
+                  <h3 className="text-2xl font-bold text-gray-900">Performance Accuracy</h3>
+                  <p className="text-gray-500 text-sm mt-1 font-medium">Your overall capability</p>
                 </div>
-                <div className="hidden sm:block w-px h-24 bg-gray-200"></div>
-                <div className="text-center">
-                  <p className="text-sm text-gray-500 font-bold uppercase tracking-wider mb-2">Accuracy</p>
-                  <div className="flex items-baseline justify-center">
-                    <span className={`text-6xl font-black ${percentage >= 70 ? 'text-green-500' : percentage >= 50 ? 'text-amber-500' : 'text-red-500'}`}>{percentage}%</span>
-                  </div>
+                <div className="text-right">
+                  <span className={`text-5xl font-black tracking-tight ${percentage >= 70 ? 'text-green-500' : percentage >= 50 ? 'text-amber-500' : 'text-red-500'}`}>
+                    {percentage}%
+                  </span>
                 </div>
               </div>
 
-              <h3 className="text-xl font-bold text-gray-900 mb-6 border-b border-gray-100 pb-3">Subject Breakdown</h3>
-              <div className="grid sm:grid-cols-2 gap-4">
+              <h3 className="text-lg font-bold text-gray-900 mb-5">Subject Breakdown</h3>
+              <div className="space-y-5 mb-10">
                  {Object.entries(breakdown).map(([subId, data]: [string, any]) => {
                     const subName = SUBJECTS.find(s => s.id === subId)?.name || subId;
                     const subPercent = Math.round((data.correct / data.total) * 100);
                     return (
-                      <div key={subId} className="bg-gray-50 rounded-xl p-5 border border-gray-100">
-                        <div className="flex justify-between items-center mb-3">
-                          <span className="font-bold text-gray-800">{subName}</span>
-                          <span className="font-bold text-blue-600 bg-blue-100 px-2 py-0.5 rounded text-sm">{data.correct} / {data.total}</span>
+                      <div key={subId} className="group">
+                        <div className="flex justify-between items-center mb-1.5">
+                          <span className="font-bold text-gray-700 text-sm">{subName}</span>
+                          <span className="font-bold text-gray-900 text-sm">{data.correct} <span className="text-gray-400">/ {data.total}</span></span>
                         </div>
-                        <div className="w-full bg-gray-200 rounded-full h-2.5">
-                          <div className={`h-2.5 rounded-full ${subPercent >= 70 ? 'bg-green-500' : subPercent >= 50 ? 'bg-amber-500' : 'bg-red-500'}`} style={{ width: `${subPercent}%` }}></div>
+                        <div className="w-full bg-gray-100 rounded-full h-3 overflow-hidden border border-gray-200/50">
+                          <div 
+                            className={`h-full rounded-full transition-all duration-1000 ${
+                              subPercent >= 70 ? 'bg-green-500' : subPercent >= 50 ? 'bg-amber-500' : 'bg-red-500'
+                            }`} 
+                            style={{ width: `${subPercent}%` }}
+                          />
                         </div>
                       </div>
                     );
                  })}
               </div>
               
-              <div className="mt-10 pt-8 border-t border-gray-100 text-center">
+              <div className="mt-auto">
                 <button
                   onClick={() => navigate('/dashboard')}
-                  className="inline-flex items-center px-8 py-4 border border-transparent text-lg font-bold rounded-xl shadow-lg text-white bg-gray-900 hover:bg-gray-800 transition-transform hover:scale-105"
+                  className="w-full inline-flex items-center justify-center px-8 py-4 border border-transparent text-lg font-bold rounded-xl shadow-lg text-white bg-gray-900 hover:bg-gray-800 transition-all hover:scale-[1.02]"
                 >
                   Return to Dashboard
                   <ArrowRight className="ml-2 w-5 h-5" />
