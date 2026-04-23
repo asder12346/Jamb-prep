@@ -6,7 +6,7 @@ import { db, handleFirestoreError, OperationType } from '../firebase';
 import { useAuth } from '../context/AuthContext';
 import { 
   ArrowLeft, Camera, Loader2, Save, User as UserIcon, 
-  Activity, Target, History, Star, BookOpen
+  Activity, Target, History, Star, BookOpen, Zap
 } from 'lucide-react';
 
 export default function Profile() {
@@ -23,7 +23,8 @@ export default function Profile() {
     totalExams: 0,
     avgScore: 0,
     bestScore: 0,
-    totalQuestionsAnswered: 0
+    totalQuestionsAnswered: 0,
+    totalXP: 0
   });
 
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -54,10 +55,12 @@ export default function Profile() {
         let totalScore = 0;
         let totalQs = 0;
         let best = 0;
+        let totalXP = 0;
         
         exams.forEach((ex: any) => {
           totalScore += ex.score;
           totalQs += ex.total;
+          totalXP += (ex.score || 0);
           const percentage = (ex.score / ex.total) * 100;
           if (percentage > best) best = percentage;
         });
@@ -66,7 +69,8 @@ export default function Profile() {
           totalExams: exams.length,
           avgScore: exams.length > 0 ? Math.round((totalScore / totalQs) * 100) : 0,
           bestScore: Math.round(best),
-          totalQuestionsAnswered: totalQs
+          totalQuestionsAnswered: totalQs,
+          totalXP
         });
 
       } catch (err) {
@@ -262,6 +266,32 @@ export default function Profile() {
 
           {/* Stats Column */}
           <div className="w-full md:w-1/2 space-y-6">
+             <div className="bg-gradient-to-r from-amber-500 to-orange-500 rounded-2xl shadow-sm border border-amber-600 p-6 sm:p-8 text-white relative overflow-hidden">
+                <div className="absolute top-0 right-0 -m-8 w-32 h-32 bg-white/20 rounded-full filter blur-xl"></div>
+                <div className="flex justify-between items-center relative z-10">
+                   <div>
+                     <div className="text-amber-100 text-sm font-semibold uppercase tracking-wider mb-1">Current Level</div>
+                     <div className="text-4xl font-black">Level {Math.floor(stats.totalXP / 1000) + 1}</div>
+                   </div>
+                   <div className="text-right">
+                     <div className="text-amber-100 text-sm font-semibold uppercase tracking-wider mb-1">Total XP</div>
+                     <div className="text-2xl font-bold flex items-center justify-end">
+                       <Zap className="w-5 h-5 mr-1" />
+                       {stats.totalXP}
+                     </div>
+                   </div>
+                </div>
+                <div className="mt-6 relative z-10">
+                  <div className="flex justify-between text-xs font-bold text-amber-100 mb-2">
+                    <span>Progress to Level {Math.floor(stats.totalXP / 1000) + 2}</span>
+                    <span>{1000 - (stats.totalXP % 1000)} XP needed</span>
+                  </div>
+                  <div className="w-full bg-black/20 rounded-full h-2">
+                     <div className="bg-white h-2 rounded-full transition-all duration-1000" style={{ width: `${((stats.totalXP % 1000) / 1000) * 100}%` }}></div>
+                  </div>
+                </div>
+             </div>
+
             <div className="bg-gradient-to-br from-gray-900 to-indigo-900 rounded-2xl shadow-sm border border-gray-800 p-6 sm:p-8 text-white relative overflow-hidden">
                <div className="absolute top-0 right-0 -m-16 w-48 h-48 bg-white/5 rounded-full filter blur-3xl"></div>
                
