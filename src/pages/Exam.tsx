@@ -5,11 +5,14 @@ import { db, handleFirestoreError, OperationType } from '../firebase';
 import { useAuth } from '../context/AuthContext';
 import { 
   Clock, ChevronLeft, ChevronRight, CheckCircle2, 
-  Flag, XCircle, BarChart2, Check, ArrowRight
+  Flag, XCircle, BarChart2, Check, ArrowRight, Zap
 } from 'lucide-react';
+import Confetti from 'react-confetti';
+import { useWindowSize } from 'react-use';
 import { QUESTIONS, SUBJECTS, Question } from '../data/jamb_data';
 
 export default function Exam() {
+  const { width, height } = useWindowSize();
   const { user } = useAuth();
   const navigate = useNavigate();
   const [questions, setQuestions] = useState<Question[]>([]);
@@ -249,8 +252,13 @@ export default function Exam() {
     const percentage = Math.round((score / total) * 100);
 
     return (
-      <div className="min-h-screen bg-gray-50 p-4 sm:p-8 flex items-center justify-center">
-        <div className="max-w-5xl w-full mx-auto">
+      <div className="min-h-screen bg-gray-50 p-4 sm:p-8 flex items-center justify-center relative overflow-hidden">
+        {percentage >= 50 && (
+          <div className="fixed inset-0 z-50 pointer-events-none">
+             <Confetti width={width} height={height} recycle={false} numberOfPieces={500} gravity={0.15} />
+          </div>
+        )}
+        <div className="max-w-5xl w-full mx-auto relative z-10">
           <div className="bg-white rounded-3xl shadow-xl overflow-hidden border border-gray-100 flex flex-col md:flex-row mb-8">
             
             {/* Left/Top Area - Congratulations & Image */}
@@ -272,11 +280,20 @@ export default function Exam() {
                <h1 className="text-3xl font-black text-white mb-2 relative z-10 tracking-tight">Exam Completed!</h1>
                <p className="text-blue-100 font-medium relative z-10 mb-8 max-w-xs mx-auto">Excellent effort. Here is how you performed on this mock CBT.</p>
                
-               <div className="bg-white/10 rounded-2xl p-4 backdrop-blur-sm border border-white/20 relative z-10 max-w-xs mx-auto w-full">
-                 <p className="text-sm text-blue-200 uppercase tracking-widest font-bold mb-1">Total Score</p>
-                 <div className="flex items-baseline justify-center text-white">
-                   <span className="text-5xl font-black block leading-none">{score}</span>
-                   <span className="text-xl font-bold ml-2 opacity-70">/ {total}</span>
+               <div className="flex gap-4 max-w-xs mx-auto w-full relative z-10">
+                 <div className="bg-white/10 rounded-2xl p-4 backdrop-blur-sm border border-white/20 flex-1">
+                   <p className="text-sm text-blue-200 uppercase tracking-widest font-bold mb-1">Total Score</p>
+                   <div className="flex items-baseline justify-center text-white">
+                     <span className="text-5xl font-black block leading-none">{score}</span>
+                     <span className="text-xl font-bold ml-1 opacity-70">/{total}</span>
+                   </div>
+                 </div>
+                 <div className="bg-amber-500/20 rounded-2xl p-4 backdrop-blur-sm border border-amber-300/30 flex-1">
+                   <p className="text-sm text-amber-200 uppercase tracking-widest font-bold mb-1">XP Earned</p>
+                   <div className="flex items-center justify-center text-white">
+                     <Zap className="w-6 h-6 text-amber-400 mr-1 animate-pulse" />
+                     <span className="text-5xl font-black block leading-none text-amber-400">+{score}</span>
+                   </div>
                  </div>
                </div>
             </div>

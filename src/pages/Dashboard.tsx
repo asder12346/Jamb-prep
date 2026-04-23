@@ -17,7 +17,7 @@ export default function Dashboard() {
   
   const [recentExams, setRecentExams] = useState<any[]>([]);
   const [chartData, setChartData] = useState<any[]>([]);
-  const [stats, setStats] = useState({ predictedScore: 0, totalExams: 0, avgAccuracy: 0, weakestSubjects: [] as {id: string, accuracy: number}[] });
+  const [stats, setStats] = useState({ predictedScore: 0, totalExams: 0, avgAccuracy: 0, streak: 0, totalXP: 0, weakestSubjects: [] as {id: string, accuracy: number}[] });
 
   useEffect(() => {
     if (!user) return;
@@ -76,22 +76,55 @@ export default function Dashboard() {
         if (exams.length > 0) {
           let totalScore = 0;
           let totalQs = 0;
+          let calculatedXP = 0;
           
+          // Calculate Streak logic
+          const uniqueDays = [...new Set(exams.map((ex: any) => {
+             const d = new Date(ex.date);
+             return `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`;
+          }))];
+          
+          let currentStreak = 0;
+          let checkDate = new Date();
+          // Check if they did one today or yesterday to continue streak
+          const todayStr = `${checkDate.getFullYear()}-${checkDate.getMonth()}-${checkDate.getDate()}`;
+          checkDate.setDate(checkDate.getDate() - 1);
+          const yesterdayStr = `${checkDate.getFullYear()}-${checkDate.getMonth()}-${checkDate.getDate()}`;
+          
+          let dayIndex = 0;
+          let trackingDate = new Date();
+          // Adjust starting point to yesterday if they haven't done one today yet but did one yesterday
+          if (!uniqueDays.includes(todayStr) && uniqueDays.includes(yesterdayStr)) {
+             trackingDate.setDate(trackingDate.getDate() - 1);
+          }
+          
+          while(true) {
+             const dStr = `${trackingDate.getFullYear()}-${trackingDate.getMonth()}-${trackingDate.getDate()}`;
+             if (uniqueDays.includes(dStr)) {
+                currentStreak++;
+                trackingDate.setDate(trackingDate.getDate() - 1);
+             } else {
+                break;
+             }
+          }
+
           // Data structure for weak subject analysis
           const subjectPerformances: Record<string, { correct: number, total: number }> = {};
 
           exams.forEach((ex: any) => {
             totalScore += ex.score;
             totalQs += ex.total;
+            calculatedXP += (ex.score || 0);
             
             // Build subject breakdown aggregate
-            if (ex.breakdown) {
-               Object.keys(ex.breakdown).forEach(subId => {
+            if (ex.breakdown || ex.subjectBreakdown) {
+               const breakdownObj = ex.subjectBreakdown || ex.breakdown;
+               Object.keys(breakdownObj).forEach(subId => {
                   if (!subjectPerformances[subId]) {
                      subjectPerformances[subId] = { correct: 0, total: 0 };
                   }
-                  subjectPerformances[subId].correct += ex.breakdown[subId].correct;
-                  subjectPerformances[subId].total += ex.breakdown[subId].total;
+                  subjectPerformances[subId].correct += breakdownObj[subId].correct;
+                  subjectPerformances[subId].total += breakdownObj[subId].total;
                });
             }
           });
@@ -113,6 +146,8 @@ export default function Dashboard() {
             predictedScore: Math.round(accuracy * 400),
             totalExams: exams.length,
             avgAccuracy: Math.round(accuracy * 100),
+            streak: currentStreak,
+            totalXP: calculatedXP,
             // @ts-ignore
             weakestSubjects: weakestSubjects
           });
@@ -262,10 +297,12 @@ export default function Dashboard() {
                   <div className="bg-orange-100 p-2 rounded-xl text-orange-500"><Flame className="w-5 h-5" /></div>
                 </div>
                 <div className="flex items-baseline space-x-2">
-                   <h2 className="text-5xl font-black text-gray-900">1</h2>
-                   <span className="text-lg font-medium text-gray-500">Day</span>
+                   <h2 className="text-5xl font-black text-gray-900">{stats.streak}</h2>
+                   <span className="text-lg font-medium text-gray-500">Day{stats.streak !== 1 ? 's' : ''}</span>
                 </div>
-                <p className="mt-4 text-sm font-medium text-orange-500">Start practicing to boost your streak!</p>
+                <p className="mt-4 text-sm font-medium text-orange-500">
+                  {stats.streak > 2 ? 'You are on fire! 🔥 Keep it up!' : 'Start practicing to boost your streak!'}
+                </p>
               </div>
            </div>
 
@@ -410,20 +447,72 @@ export default function Dashboard() {
               </div>
             </div>
             
-            {/* Next Milestone Motivation Card */}
-            <div className="bg-gradient-to-r from-gray-900 to-indigo-900 rounded-2xl shadow-sm border border-gray-800 p-6 flex items-center justify-between text-white">
-               <div>
-                  <h3 className="font-bold text-lg mb-1">Consistency is key!</h3>
-                  <p className="text-indigo-200 text-sm max-w-md">Take at least 3 exams this week to unlock the "Active Scholar" badge and boost your global ranking.</p>
-               </div>
-               <div className="hidden sm:flex items-center justify-center w-16 h-16 rounded-full bg-white/10 border border-white/20">
-                  <ArrowRight className="w-8 h-8 text-indigo-300" />
+            {/* Level and XP Progress Card */}
+            <div className="bg-gradient-to-r from-gray-900 via-indigo-900 to-blue-900 rounded-2xl shadow-xl border border-gray-800 p-6 text-white relative overflow-hidden group">
+               <div className="absolute right-0 top-0 w-64 h-64 bg-white opacity-5 rounded-full blur-[40px] group-hover:opacity-10 transition-opacity"></div>
+               <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6 relative z-10">
+                 <div className="flex items-center space-x-6">
+                    <div className="relative">
+                       <svg className="w-20 h-20 transform -rotate-90">
+                         <circle cx="40" cy="40" r="36" stroke="currentColor" strokeWidth="6" fill="transparent" className="text-gray-700" />
+                         <circle cx="40" cy="40" r="36" stroke="currentColor" strokeWidth="6" fill="transparent" 
+                           strokeDasharray={36 * 2 * Math.PI} 
+                           strokeDashoffset={36 * 2 * Math.PI * (1 - ((stats.totalXP % 1000) / 1000))} 
+                           className="text-amber-400 transition-all duration-1000 ease-out" strokeLinecap="round" />
+                       </svg>
+                       <div className="absolute inset-0 flex flex-col items-center justify-center">
+                         <span className="text-xs font-bold text-amber-200">LVL</span>
+                         <span className="text-xl font-black text-amber-400 leading-none">{Math.floor(stats.totalXP / 1000) + 1}</span>
+                       </div>
+                    </div>
+                    <div>
+                      <h3 className="font-bold text-2xl mb-1 text-white">Experience Points</h3>
+                      <p className="text-indigo-200 text-sm max-w-md">
+                        {stats.totalXP} TOTAL XP • {(1000 - (stats.totalXP % 1000))} XP to next level
+                      </p>
+                    </div>
+                 </div>
+                 <div className="hidden sm:flex flex-col items-center justify-center bg-white/10 px-6 py-3 rounded-2xl border border-white/10 backdrop-blur-sm">
+                    <span className="text-sm font-bold text-indigo-300 uppercase tracking-wider mb-1">Rank Status</span>
+                    <span className="text-lg font-black text-white capitalize">{Math.floor(stats.totalXP / 1000) + 1 >= 5 ? 'Elite Scholar' : Math.floor(stats.totalXP / 1000) + 1 >= 3 ? 'Dedicated Student' : 'Novice Learner'}</span>
+                 </div>
                </div>
             </div>
           </div>
 
           {/* Right Sidebar */}
           <div className="space-y-6">
+            
+            {/* Trophies & Achievements */}
+            <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
+               <div className="bg-gradient-to-r from-amber-50 to-yellow-50 px-6 py-4 border-b border-gray-100 flex items-center justify-between">
+                 <h3 className="text-sm font-bold text-amber-900 flex items-center uppercase tracking-wider">
+                   <Trophy className="w-4 h-4 mr-2 text-amber-500" />
+                   Recent Badges
+                 </h3>
+               </div>
+               <div className="p-5 grid grid-cols-3 gap-3">
+                 <div className={`flex flex-col items-center p-3 rounded-xl border ${stats.totalExams > 0 ? 'bg-amber-50 border-amber-200' : 'bg-gray-50 border-gray-100 opacity-50 grayscale'}`}>
+                   <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center shadow-sm mb-2 border border-amber-100">
+                     <span className="text-xl">🎯</span>
+                   </div>
+                   <span className={`text-[10px] font-bold text-center leading-tight ${stats.totalExams > 0 ? 'text-amber-900' : 'text-gray-500'}`}>First Steps</span>
+                 </div>
+                 <div className={`flex flex-col items-center p-3 rounded-xl border ${stats.streak >= 3 ? 'bg-orange-50 border-orange-200' : 'bg-gray-50 border-gray-100 opacity-50 grayscale'}`}>
+                   <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center shadow-sm mb-2 border border-orange-100">
+                     <span className="text-xl">🔥</span>
+                   </div>
+                   <span className={`text-[10px] font-bold text-center leading-tight ${stats.streak >= 3 ? 'text-orange-900' : 'text-gray-500'}`}>3 Day Streak</span>
+                 </div>
+                 <div className={`flex flex-col items-center p-3 rounded-xl border ${stats.avgAccuracy >= 80 ? 'bg-emerald-50 border-emerald-200' : 'bg-gray-50 border-gray-100 opacity-50 grayscale'}`}>
+                   <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center shadow-sm mb-2 border border-emerald-100">
+                     <span className="text-xl">🧠</span>
+                   </div>
+                   <span className={`text-[10px] font-bold text-center leading-tight ${stats.avgAccuracy >= 80 ? 'text-emerald-900' : 'text-gray-500'}`}>Top Brain</span>
+                 </div>
+               </div>
+            </div>
+
             {/* Recent History Card */}
             <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
                <div className="px-6 py-5 border-b border-gray-100 flex items-center justify-between">
