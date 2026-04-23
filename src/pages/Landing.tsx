@@ -231,8 +231,14 @@ export default function Landing() {
             </div>
             
             <div className="grid md:grid-cols-4 gap-6 relative">
-              {/* Connecting line for desktop */}
-              <div className="hidden md:block absolute top-[4rem] left-[10%] right-[10%] h-[2px] bg-gradient-to-r from-blue-100 via-blue-300 to-blue-100 z-0 border-t-2 border-dashed border-white"></div>
+              {/* Animated Connecting line for desktop */}
+              <div className="hidden md:block absolute top-[4rem] left-[12%] right-[12%] h-[2px] bg-blue-100/50 z-0 overflow-hidden rounded-full">
+                <motion.div 
+                  className="absolute inset-y-0 left-0 w-1/3 bg-gradient-to-r from-transparent via-blue-500 to-transparent"
+                  animate={{ x: ['-100%', '300%'] }}
+                  transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
+                />
+              </div>
               
               {[
                 { step: "01", icon: UserPlus, title: "Create Profile", desc: "Sign in with Google. Track your history securely." },
