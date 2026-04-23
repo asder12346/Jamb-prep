@@ -31,21 +31,11 @@ export default function Leaderboard() {
         snapshot.forEach(doc => {
           const data = doc.data();
           fetchedResults.push({ id: doc.id, ...data } as ExamResult);
-          userIds.add(data.userId);
         });
-
-        // Fetch user details
-        const usersMap: Record<string, string> = {};
-        for (const uid of Array.from(userIds)) {
-           const userDoc = await getDoc(doc(db, 'users', uid));
-           if (userDoc.exists()) {
-             usersMap[uid] = userDoc.data().name || 'Unknown User';
-           }
-        }
 
         const finalResults = fetchedResults.map(r => ({
           ...r,
-          userName: usersMap[r.userId] || 'Unknown User'
+          userName: r.userName || 'Student'
         }));
 
         setResults(finalResults);

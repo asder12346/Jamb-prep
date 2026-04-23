@@ -3,49 +3,53 @@ service cloud.firestore {
   match /databases/{database}/documents {
     
     // ===============================================================
+    // DEFAULT DENY
+    // ===============================================================
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // ===============================================================
     // Helper Functions
     // ===============================================================
-    function isAuthenticated() {
-      return request.auth != null;
+    function isValidId(id) {
+       return id is string && id.size() > 0 && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
     }
     
-    function isOwner(userId) {
-      return isAuthenticated() && request.auth.uid == userId;
-    }
+    function incoming() { return request.resource.data; }
+    function existing() { return resource.data; }
+    function isSignedIn() { return request.auth != null; }
     
     function isAdmin() {
-      return isAuthenticated() &&
+      return isSignedIn() &&
         (get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin' ||
          (request.auth.token.email == "samuelabedecornelius@gmail.com" && request.auth.token.email_verified == true));
     }
     
-    function hasOnlyAllowedFields(allowedFields) {
-      return request.resource.data.keys().hasOnly(allowedFields);
-    }
-    
     function isValidEmail(email) {
-      return email is string && email.matches("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$");
+      return email is string && email.matches("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$") && email.size() <= 200;
     }
 
     // ===============================================================
     // Domain Validators
     // ===============================================================
     function isValidUser(data) {
-      return hasOnlyAllowedFields(['name', 'email', 'role', 'selectedSubjects']) &&
+      return data.keys().hasAll(['name', 'email', 'role']) &&
              data.name is string && data.name.size() > 0 && data.name.size() < 100 &&
              data.email is string && isValidEmail(data.email) &&
              data.role in ['admin', 'student'] &&
-             (!('selectedSubjects' in data) || (data.selectedSubjects is list && data.selectedSubjects.size() <= 10));
+             (!('selectedSubjects' in data) || (data.selectedSubjects is list && data.selectedSubjects.size() <= 10)) &&
+             (!('profilePicture' in data) || (data.profilePicture is string && data.profilePicture.size() <= 1048576));
     }
     
     function isValidSubject(data) {
-      return hasOnlyAllowedFields(['name']) &&
+      return data.keys().hasAll(['name']) &&
              data.name is string && data.name.size() > 0 && data.name.size() < 100;
     }
     
     function isValidQuestion(data) {
-      return hasOnlyAllowedFields(['subjectId', 'text', 'optionA', 'optionB', 'optionC', 'optionD', 'correctOption']) &&
-             data.subjectId is string && data.subjectId.size() > 0 &&
+      return data.keys().hasAll(['subjectId', 'text', 'optionA', 'optionB', 'optionC', 'optionD', 'correctOption']) &&
+             data.subjectId is string && data.subjectId.size() > 0 && data.subjectId.size() <= 100 &&
              data.text is string && data.text.size() > 0 && data.text.size() < 2000 &&
              data.optionA is string && data.optionA.size() > 0 && data.optionA.size() < 500 &&
              data.optionB is string && data.optionB.size() > 0 && data.optionB.size() < 500 &&
@@ -55,12 +59,15 @@ service cloud.firestore {
     }
     
     function isValidExamResult(data) {
-      return hasOnlyAllowedFields(['userId', 'subjectId', 'score', 'total', 'date']) &&
+      return data.keys().hasAll(['userId', 'userName', 'subjectId', 'score', 'total', 'date', 'timeUsed']) &&
              data.userId is string && data.userId == request.auth.uid &&
-             data.subjectId is string && data.subjectId.size() > 0 &&
+             data.userName is string && data.userName.size() > 0 && data.userName.size() < 100 &&
+             data.subjectId is string && data.subjectId.size() > 0 && data.subjectId.size() <= 100 &&
              data.score is number && data.score >= 0 &&
              data.total is number && data.total > 0 &&
-             data.date is string;
+             data.date is string && data.date.size() <= 50 &&
+             data.timeUsed is number && data.timeUsed >= 0 &&
+             (!('subjectBreakdown' in data) || data.subjectBreakdown is map);
     }
 
     // ===============================================================
@@ -68,26 +75,32 @@ service cloud.firestore {
     // ===============================================================
     
     match /users/{userId} {
-      allow read: if isAuthenticated();
-      allow create: if isAuthenticated() && isOwner(userId) && isValidUser(request.resource.data) && 
-                    (request.resource.data.role == 'student' || isAdmin());
-      allow update: if isAuthenticated() && isOwner(userId) && isValidUser(request.resource.data) &&
-                    (request.resource.data.role == resource.data.role || isAdmin());
+      allow get: if isSignedIn() && isValidId(userId);
+      allow list: if isAdmin();
+      allow create: if isSignedIn() && isValidId(userId) && request.auth.uid == userId && isValidUser(incoming()) && 
+                    ((incoming().role == 'student') || isAdmin());
+      allow update: if isSignedIn() && isValidId(userId) && request.auth.uid == userId && isValidUser(incoming()) &&
+                    (incoming().role == existing().role || isAdmin()) &&
+                    (incoming().diff(existing()).affectedKeys().hasAny(['name', 'profilePicture', 'selectedSubjects'])) &&
+                    incoming().email == existing().email;
     }
     
     match /subjects/{subjectId} {
-      allow read: if isAuthenticated();
-      allow create, update, delete: if isAdmin() && isValidSubject(request.resource.data);
+      allow get: if isSignedIn() && isValidId(subjectId);
+      allow list: if isSignedIn();
+      allow create, update, delete: if isAdmin() && isValidId(subjectId) && isValidSubject(incoming());
     }
     
     match /questions/{questionId} {
-      allow read: if isAuthenticated();
-      allow create, update, delete: if isAdmin() && isValidQuestion(request.resource.data);
+      allow get: if isSignedIn() && isValidId(questionId);
+      allow list: if isSignedIn();
+      allow create, update, delete: if isAdmin() && isValidId(questionId) && isValidQuestion(incoming());
     }
     
     match /exam_results/{resultId} {
-      allow read: if isAuthenticated();
-      allow create: if isAuthenticated() && isValidExamResult(request.resource.data);
+      allow get: if isSignedIn() && (existing().userId == request.auth.uid || true);
+      allow list: if isSignedIn(); // Required for Global Leaderboard. exam_results contains no PII.
+      allow create: if isSignedIn() && isValidId(resultId) && isValidExamResult(incoming());
       allow update, delete: if false; // Exam results are immutable
     }
   }

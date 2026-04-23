@@ -8,7 +8,8 @@
         "name": { "type": "string", "description": "User's full name." },
         "email": { "type": "string", "format": "email", "description": "User's email address." },
         "role": { "type": "string", "enum": ["admin", "student"], "description": "User's role." },
-        "selectedSubjects": { "type": "array", "items": { "type": "string" }, "description": "List of subject IDs selected by the user." }
+        "selectedSubjects": { "type": "array", "items": { "type": "string" }, "description": "List of subject IDs selected by the user." },
+        "profilePicture": { "type": "string", "description": "Base64 encoded string of user's profile picture." }
       },
       "required": ["name", "email", "role"]
     },
@@ -42,12 +43,15 @@
       "type": "object",
       "properties": {
         "userId": { "type": "string", "description": "ID of the user who took the exam." },
+        "userName": { "type": "string", "description": "Name of the user who took the exam." },
         "subjectId": { "type": "string", "description": "ID of the subject." },
         "score": { "type": "number", "description": "Number of correct answers." },
         "total": { "type": "number", "description": "Total number of questions." },
-        "date": { "type": "string", "format": "date-time", "description": "When the exam was taken." }
+        "date": { "type": "string", "format": "date-time", "description": "When the exam was taken." },
+        "timeUsed": { "type": "number", "description": "Time used in seconds." },
+        "subjectBreakdown": { "type": "object", "description": "Performance per subject." }
       },
-      "required": ["userId", "subjectId", "score", "total", "date"]
+      "required": ["userId", "userName", "subjectId", "score", "total", "date", "timeUsed"]
     }
   },
   "firestore": {

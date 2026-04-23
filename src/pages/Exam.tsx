@@ -32,6 +32,22 @@ export default function Exam() {
 
     const fetchQuestions = async () => {
       try {
+        const savedExamStr = localStorage.getItem(`jambprep_exam_${user.uid}`);
+        if (savedExamStr) {
+          try {
+             const savedData = JSON.parse(savedExamStr);
+             setQuestions(savedData.questions);
+             setAnswers(savedData.answers || {});
+             setReviewMarked(savedData.reviewMarked || {});
+             setTimeLeft(savedData.timeLeft || 7200);
+             setCurrentQuestionIndex(savedData.currentQuestionIndex || 0);
+             setLoading(false);
+             return;
+          } catch(e) {
+             console.error("Failed to parse saved exam", e);
+          }
+        }
+
         const userDoc = await getDoc(doc(db, 'users', user.uid));
         if (!userDoc.exists()) return;
         
@@ -73,6 +89,24 @@ export default function Exam() {
 
     fetchQuestions();
   }, [user, navigate]);
+
+  useEffect(() => {
+    if (loading || examFinished || questions.length === 0 || !user) return;
+    
+    // Auto save progress every time these states change
+    const debounceTimeout = setTimeout(() => {
+      const saveData = {
+         questions,
+         answers,
+         reviewMarked,
+         timeLeft,
+         currentQuestionIndex
+      };
+      localStorage.setItem(`jambprep_exam_${user.uid}`, JSON.stringify(saveData));
+    }, 1000);
+    
+    return () => clearTimeout(debounceTimeout);
+  }, [answers, reviewMarked, timeLeft, currentQuestionIndex, questions, loading, examFinished, user]);
 
   useEffect(() => {
     if (loading || examFinished || timeLeft <= 0) return;
@@ -132,6 +166,7 @@ export default function Exam() {
     try {
       await addDoc(collection(db, 'exam_results'), {
         userId: user.uid,
+        userName: user.displayName || 'Unknown Student',
         subjectId: 'combined',
         score: globalScore,
         total: questions.length,
@@ -139,6 +174,9 @@ export default function Exam() {
         date: new Date().toISOString(),
         timeUsed: 7200 - timeLeft
       });
+      
+      // Clear auto-save data
+      localStorage.removeItem(`jambprep_exam_${user.uid}`);
       
       setResultData({
         score: globalScore,
