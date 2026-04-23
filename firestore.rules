@@ -67,6 +67,8 @@ service cloud.firestore {
              data.total is number && data.total > 0 &&
              data.date is string && data.date.size() <= 50 &&
              data.timeUsed is number && data.timeUsed >= 0 &&
+             (!('rawScore' in data) || data.rawScore is number) &&
+             (!('rawTotal' in data) || data.rawTotal is number) &&
              (!('subjectBreakdown' in data) || data.subjectBreakdown is map);
     }
 

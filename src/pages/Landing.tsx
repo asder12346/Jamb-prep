@@ -6,6 +6,7 @@ import {
 } from 'lucide-react';
 import { useNavigate, Navigate } from 'react-router-dom';
 import { motion } from 'motion/react';
+import CallToAction from '../components/ui/call-to-action';
 
 const FADE_UP_ANIMATION_VARIANTS = {
   hidden: { opacity: 0, y: 30 },
@@ -434,24 +435,8 @@ export default function Landing() {
         </section>
 
         {/* Enhanced CTA Section */}
-        <section className="py-24 bg-blue-600 relative overflow-hidden">
-          {/* Abstract geometric shapes */}
-          <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
-            <div className="absolute -top-24 -right-24 w-96 h-96 bg-blue-500 rounded-full mix-blend-multiply filter blur-3xl opacity-50"></div>
-            <div className="absolute -bottom-24 -left-24 w-72 h-72 bg-indigo-500 rounded-full mix-blend-multiply filter blur-3xl opacity-50"></div>
-          </div>
-          
-          <div className="max-w-4xl mx-auto px-4 text-center relative z-10">
-            <h2 className="text-4xl md:text-5xl font-extrabold text-white mb-6 tracking-tight">Don't leave your admission to chance.</h2>
-            <p className="text-xl text-blue-100 mb-10 max-w-2xl mx-auto">Join thousands of students pushing their limits today. Start practicing and see your name on the leaderboard.</p>
-            <button
-              onClick={() => navigate('/signup')}
-              className="inline-flex items-center justify-center px-10 py-5 text-lg font-bold text-blue-900 bg-white rounded-full hover:bg-gray-50 hover:scale-105 transition-all shadow-xl hover:shadow-2xl"
-            >
-              Get Started for Free
-              <ArrowRight className="ml-2 w-5 h-5 text-blue-600" />
-            </button>
-          </div>
+        <section className="relative overflow-hidden flex justify-center w-full">
+          <CallToAction />
         </section>
       </main>
 

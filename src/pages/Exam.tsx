@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { collection, doc, getDoc, addDoc } from 'firebase/firestore';
 import { db, handleFirestoreError, OperationType } from '../firebase';
@@ -90,23 +90,39 @@ export default function Exam() {
     fetchQuestions();
   }, [user, navigate]);
 
+  const syncRef = useRef({
+    questions,
+    answers,
+    reviewMarked,
+    timeLeft,
+    currentQuestionIndex
+  });
+
+  // Keep ref synchronized with latest state
+  useEffect(() => {
+    syncRef.current = { questions, answers, reviewMarked, timeLeft, currentQuestionIndex };
+  }, [questions, answers, reviewMarked, timeLeft, currentQuestionIndex]);
+
   useEffect(() => {
     if (loading || examFinished || questions.length === 0 || !user) return;
     
-    // Auto save progress every time these states change
-    const debounceTimeout = setTimeout(() => {
-      const saveData = {
-         questions,
-         answers,
-         reviewMarked,
-         timeLeft,
-         currentQuestionIndex
-      };
-      localStorage.setItem(`jambprep_exam_${user.uid}`, JSON.stringify(saveData));
-    }, 1000);
+    // Save to local storage synchronously
+    const saveToLocal = () => {
+      localStorage.setItem(`jambprep_exam_${user.uid}`, JSON.stringify(syncRef.current));
+    };
+
+    // Robust save: Trigger every 2 seconds, which completely decouples from reacting to `timeLeft` updates 
+    // and guarantees that rapid changes won't starve the save operation.
+    const syncInterval = setInterval(saveToLocal, 2000);
     
-    return () => clearTimeout(debounceTimeout);
-  }, [answers, reviewMarked, timeLeft, currentQuestionIndex, questions, loading, examFinished, user]);
+    // Safety hook for tab closure/refresh
+    window.addEventListener('beforeunload', saveToLocal);
+    
+    return () => {
+      clearInterval(syncInterval);
+      window.removeEventListener('beforeunload', saveToLocal);
+    };
+  }, [loading, examFinished, questions.length, user]);
 
   useEffect(() => {
     if (loading || examFinished || timeLeft <= 0) return;
@@ -152,7 +168,8 @@ export default function Exam() {
     if (!user || submitting) return;
     setSubmitting(true);
     
-    let globalScore = 0;
+    let rawGlobalScore = 0;
+    let jambScaledScore = 0;
     const subjectBreakdown: Record<string, { correct: number, total: number }> = {};
     const examSubjects = [...new Set(questions.map(q => q.subjectId))];
 
@@ -160,7 +177,10 @@ export default function Exam() {
       const subQs = questions.filter(q => q.subjectId === subId);
       const correct = subQs.filter(q => answers[q.id] === q.correctOption).length;
       subjectBreakdown[subId] = { correct, total: subQs.length };
-      globalScore += correct;
+      rawGlobalScore += correct;
+      
+      // JAMB Scales each subject to 100 marks total (4 subjects = max 400 points)
+      jambScaledScore += Math.round((correct / subQs.length) * 100);
     });
 
     try {
@@ -168,8 +188,10 @@ export default function Exam() {
         userId: user.uid,
         userName: user.displayName || 'Unknown Student',
         subjectId: 'combined',
-        score: globalScore,
-        total: questions.length,
+        score: jambScaledScore, // Save the JAMB 400 Standard scale
+        total: 400, // Maximum standard JAMB score
+        rawScore: rawGlobalScore, // Backup 180 unscaled
+        rawTotal: 180,
         subjectBreakdown: subjectBreakdown,
         date: new Date().toISOString(),
         timeUsed: 7200 - timeLeft
@@ -179,8 +201,10 @@ export default function Exam() {
       localStorage.removeItem(`jambprep_exam_${user.uid}`);
       
       setResultData({
-        score: globalScore,
-        total: questions.length,
+        score: jambScaledScore,
+        total: 400,
+        rawScore: rawGlobalScore,
+        rawTotal: 180,
         breakdown: subjectBreakdown,
         timeUsed: 7200 - timeLeft
       });
@@ -469,7 +493,10 @@ export default function Exam() {
         <div className="max-w-[1400px] mx-auto w-full px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
           <div className="flex items-center text-gray-900 font-bold">
             <span className="bg-gray-100 px-3 py-1 rounded-md text-sm mr-4 border border-gray-200">
-               Question {currentQuestionIndex + 1} / {questions.length}
+               Question {currentQuestionIndex - questions.findIndex(q => q.subjectId === currentQuestion.subjectId) + 1} / {questions.filter(q => q.subjectId === currentQuestion.subjectId).length}
+            </span>
+            <span className="hidden sm:inline-block text-gray-400 text-xs translate-y-[1px]">
+               ({currentQuestionIndex + 1} of 180 overall)
             </span>
           </div>
           <div className={`flex items-center font-mono text-xl font-bold bg-gray-50 px-4 py-1.5 rounded-lg border ${timeLeft < 300 ? 'text-red-600 border-red-200 bg-red-50 animate-pulse' : 'text-gray-900 border-gray-200'}`}>

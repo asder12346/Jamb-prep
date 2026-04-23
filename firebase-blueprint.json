@@ -45,8 +45,10 @@
         "userId": { "type": "string", "description": "ID of the user who took the exam." },
         "userName": { "type": "string", "description": "Name of the user who took the exam." },
         "subjectId": { "type": "string", "description": "ID of the subject." },
-        "score": { "type": "number", "description": "Number of correct answers." },
-        "total": { "type": "number", "description": "Total number of questions." },
+        "score": { "type": "number", "description": "Scaled IAMB core (Max 400)." },
+        "total": { "type": "number", "description": "Maximum standard JAMB score (400)." },
+        "rawScore": { "type": "number", "description": "Raw unscaled score." },
+        "rawTotal": { "type": "number", "description": "Raw unscaled total." },
         "date": { "type": "string", "format": "date-time", "description": "When the exam was taken." },
         "timeUsed": { "type": "number", "description": "Time used in seconds." },
         "subjectBreakdown": { "type": "object", "description": "Performance per subject." }
