@@ -268,16 +268,18 @@ export default function Landing() {
         </section>
 
         {/* Features - Bento Grid Style */}
-        <section id="features" className="py-24 bg-white border-y border-gray-100 relative">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <section id="features" className="py-32 bg-white relative overflow-hidden">
+          <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-gray-200 to-transparent"></div>
+          
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
             <motion.div 
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              className="text-center max-w-3xl mx-auto mb-16"
+              className="text-center max-w-3xl mx-auto mb-20"
             >
-              <h2 className="text-3xl md:text-5xl font-extrabold text-gray-900 mb-6 tracking-tight">Everything you need to score 300+</h2>
-              <p className="text-lg text-gray-600">
+              <h2 className="text-4xl md:text-5xl font-extrabold text-gray-900 mb-6 tracking-tight">Everything you need to <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600">score 300+</span></h2>
+              <p className="text-xl text-gray-600 leading-relaxed">
                 Bridging the gap between reading textbook chapters and executing flawlessly in a live computer-based environment.
               </p>
             </motion.div>
@@ -288,18 +290,23 @@ export default function Landing() {
                 initial={{ opacity: 0, scale: 0.95 }}
                 whileInView={{ opacity: 1, scale: 1 }}
                 viewport={{ once: true }}
-                transition={{ delay: 0.1 }}
-                className="md:col-span-2 bg-[#F8FAFC] rounded-3xl p-8 border border-gray-200 overflow-hidden relative group hover:shadow-xl transition-shadow"
+                transition={{ delay: 0.1, type: "spring", stiffness: 50 }}
+                className="md:col-span-2 rounded-3xl overflow-hidden relative group"
               >
-                <div className="w-12 h-12 bg-blue-100 text-blue-600 flex items-center justify-center rounded-2xl mb-6">
-                  <Laptop className="w-6 h-6" />
-                </div>
-                <h3 className="text-2xl font-bold text-gray-900 mb-3">Authentic CBT Experience</h3>
-                <p className="text-gray-600 leading-relaxed max-w-md">
-                  Familiarize yourself with the exact digital layout you will face on exam day. Track answered, current, and unanswered queries seamlessly with our signature Question Palette.
-                </p>
-                <div className="absolute right-0 bottom-0 opacity-10 group-hover:opacity-20 transition-opacity translate-x-10 translate-y-10">
-                  <Laptop className="w-64 h-64 text-blue-600" />
+                <div className="absolute inset-0 bg-gradient-to-br from-blue-50 to-[#F8FAFC] border border-blue-100 rounded-3xl transition-colors duration-500 group-hover:border-blue-300 pointer-events-none"></div>
+                <div className="relative h-full p-10 flex flex-col justify-center">
+                  <div className="w-14 h-14 bg-white shadow-sm ring-1 ring-black/5 text-blue-600 flex items-center justify-center rounded-2xl mb-8 group-hover:scale-110 group-hover:bg-blue-600 group-hover:text-white transition-all duration-300">
+                    <Laptop className="w-7 h-7" />
+                  </div>
+                  <h3 className="text-3xl font-extrabold text-gray-900 mb-4 tracking-tight">Authentic CBT Experience</h3>
+                  <p className="text-lg text-gray-600 leading-relaxed max-w-md">
+                    Familiarize yourself with the exact digital layout you will face on exam day. Track answered, current, and unanswered queries seamlessly with our signature Question Palette.
+                  </p>
+                  
+                  {/* Decorative faint background icon */}
+                  <div className="absolute right-0 bottom-0 opacity-0 group-hover:opacity-10 transition-all duration-500 translate-x-12 translate-y-12 scale-110 group-hover:scale-100 pointer-events-none">
+                    <Laptop className="w-80 h-80 text-blue-600" />
+                  </div>
                 </div>
               </motion.div>
 
@@ -308,47 +315,58 @@ export default function Landing() {
                 initial={{ opacity: 0, scale: 0.95 }}
                 whileInView={{ opacity: 1, scale: 1 }}
                 viewport={{ once: true }}
-                transition={{ delay: 0.2 }}
-                className="bg-[#FFF1F2] rounded-3xl p-8 border border-red-100 hover:shadow-xl transition-shadow"
+                transition={{ delay: 0.2, type: "spring", stiffness: 50 }}
+                className="rounded-3xl overflow-hidden relative group"
               >
-                <div className="w-12 h-12 bg-red-100 text-red-600 flex items-center justify-center rounded-2xl mb-6">
-                  <Clock className="w-6 h-6" />
+                <div className="absolute inset-0 bg-gradient-to-br from-red-50 to-[#FFF1F2] border border-red-100 rounded-3xl transition-colors duration-500 group-hover:border-red-300 pointer-events-none"></div>
+                <div className="relative h-full p-10 flex flex-col justify-center">
+                  <div className="w-14 h-14 bg-white shadow-sm ring-1 ring-black/5 text-red-600 flex items-center justify-center rounded-2xl mb-8 group-hover:scale-110 group-hover:bg-red-600 group-hover:text-white transition-all duration-300">
+                    <Clock className="w-7 h-7" />
+                  </div>
+                  <h3 className="text-2xl font-extrabold text-gray-900 mb-4 tracking-tight">Time Management</h3>
+                  <p className="text-gray-600 leading-relaxed">
+                    The exam is notoriously fast (120 mins). Our strict countdown timer builds mental speed, ensuring you finish before the system logs you out.
+                  </p>
+                  
+                  {/* Decorative faint background icon */}
+                  <div className="absolute -right-4 -bottom-4 opacity-0 group-hover:opacity-10 transition-all duration-500 translate-x-4 translate-y-4 scale-110 group-hover:scale-100 pointer-events-none">
+                    <Clock className="w-48 h-48 text-red-600" />
+                  </div>
                 </div>
-                <h3 className="text-xl font-bold text-gray-900 mb-3">Time Management</h3>
-                <p className="text-gray-600 leading-relaxed">
-                  The exam is notoriously fast (120 mins). Our strict countdown timer trains your mental speed.
-                </p>
               </motion.div>
 
               {/* Bento 3: Leaderboard & Analytics */}
               <motion.div 
-                initial={{ opacity: 0, scale: 0.95 }}
-                whileInView={{ opacity: 1, scale: 1 }}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                transition={{ delay: 0.3 }}
-                className="md:col-span-3 bg-[#F0FDF4] rounded-3xl p-8 sm:p-10 border border-green-200 flex flex-col md:flex-row items-center justify-between hover:shadow-xl transition-shadow"
+                transition={{ delay: 0.3, type: "spring", stiffness: 50 }}
+                className="md:col-span-3 rounded-3xl overflow-hidden relative group"
               >
-                <div className="max-w-xl mb-8 md:mb-0">
-                  <div className="w-12 h-12 bg-green-100 text-green-600 flex items-center justify-center rounded-2xl mb-6">
-                    <LineChart className="w-6 h-6" />
-                  </div>
-                  <h3 className="text-2xl font-bold text-gray-900 mb-3">Instant Leaderboard Rankings</h3>
-                  <p className="text-gray-700 leading-relaxed">
-                    Identify your weak subjects instantly after submitting. The nationwide leaderboard sparks competition, keeping you motivated to surpass your peers before the real day.
-                  </p>
-                </div>
-                <div className="w-full md:w-auto">
-                    <div className="bg-white p-6 rounded-2xl shadow-sm border border-green-100 flex items-center space-x-6 transform rotate-2">
-                       <div className="text-center">
-                          <div className="text-4xl font-black text-green-600">#1</div>
-                          <div className="text-xs text-gray-500 font-bold uppercase tracking-wider mt-1">Global Rank</div>
-                       </div>
-                       <div className="h-12 w-px bg-gray-200"></div>
-                       <div className="text-center">
-                          <div className="text-4xl font-black text-gray-900">324</div>
-                          <div className="text-xs text-gray-500 font-bold uppercase tracking-wider mt-1">High Score</div>
-                       </div>
+                <div className="absolute inset-0 bg-gradient-to-br from-[#F0FDF4] to-emerald-50/50 border border-emerald-100 rounded-3xl transition-colors duration-500 group-hover:border-emerald-300 pointer-events-none"></div>
+                <div className="relative p-10 md:p-14 flex flex-col md:flex-row items-center justify-between gap-10">
+                  <div className="max-w-xl">
+                    <div className="w-14 h-14 bg-white shadow-sm ring-1 ring-black/5 text-emerald-600 flex items-center justify-center rounded-2xl mb-8 group-hover:scale-110 group-hover:bg-emerald-600 group-hover:text-white transition-all duration-300">
+                      <Target className="w-7 h-7" />
                     </div>
+                    <h3 className="text-3xl font-extrabold text-gray-900 mb-4 tracking-tight">Post-Exam Actionable Analytics</h3>
+                    <p className="text-lg text-gray-700 leading-relaxed">
+                      Identify your weak subjects instantly after submitting. The nationwide leaderboard sparks competition, keeping you motivated to surpass your peers before the real test day.
+                    </p>
+                  </div>
+                  <div className="w-full md:w-auto shrink-0 relative group-hover:scale-105 transition-transform duration-500">
+                      <div className="bg-white p-8 rounded-3xl shadow-xl shadow-emerald-900/5 ring-1 ring-black/5 flex items-center space-x-10 transform -rotate-1 group-hover:rotate-0 transition-transform duration-500">
+                         <div className="text-center group">
+                            <div className="text-5xl font-black text-transparent bg-clip-text bg-gradient-to-br from-emerald-500 to-green-600 tracking-tighter">#1</div>
+                            <div className="text-xs text-gray-400 font-bold uppercase tracking-widest mt-2 group-hover:text-emerald-500 transition-colors">Global Rank</div>
+                         </div>
+                         <div className="h-16 w-px bg-gradient-to-b from-transparent via-gray-200 to-transparent"></div>
+                         <div className="text-center group">
+                            <div className="text-5xl font-black text-gray-900 tracking-tighter">312</div>
+                            <div className="text-xs text-gray-400 font-bold uppercase tracking-widest mt-2 group-hover:text-gray-900 transition-colors">High Score</div>
+                         </div>
+                      </div>
+                  </div>
                 </div>
               </motion.div>
             </div>
