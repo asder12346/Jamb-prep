@@ -2,11 +2,12 @@ import { useAuth } from '../context/AuthContext';
 import { 
   BookOpen, GraduationCap, Clock, LineChart, Target, CheckCircle, 
   ChevronRight, Laptop, Users, Zap, Shield, HelpCircle, PlayCircle,
-  Twitter, Facebook, Instagram, Mail, ArrowRight, Sparkles
+  Twitter, Facebook, Instagram, Mail, ArrowRight, Sparkles, UserPlus, ListChecks, Trophy
 } from 'lucide-react';
 import { useNavigate, Navigate } from 'react-router-dom';
 import { motion } from 'motion/react';
 import CallToAction from '../components/ui/call-to-action';
+import CountUp from '../components/ui/count-up';
 
 const FADE_UP_ANIMATION_VARIANTS = {
   hidden: { opacity: 0, y: 30 },
@@ -190,19 +191,27 @@ export default function Landing() {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center divide-x divide-gray-100">
               <motion.div initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }}>
-                <div className="text-4xl font-extrabold text-blue-600 mb-2">180</div>
+                <div className="text-4xl font-extrabold text-blue-600 mb-2">
+                  <CountUp to={180} />
+                </div>
                 <div className="text-sm text-gray-500 font-medium uppercase tracking-wider">Minutes Timer</div>
               </motion.div>
               <motion.div initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }} transition={{ delay: 0.1 }}>
-                <div className="text-4xl font-extrabold text-blue-600 mb-2">15+</div>
+                <div className="text-4xl font-extrabold text-blue-600 mb-2">
+                  <CountUp to={15} suffix="+" />
+                </div>
                 <div className="text-sm text-gray-500 font-medium uppercase tracking-wider">JAMB Subjects</div>
               </motion.div>
               <motion.div initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }} transition={{ delay: 0.2 }}>
-                <div className="text-4xl font-extrabold text-blue-600 mb-2">180</div>
+                <div className="text-4xl font-extrabold text-blue-600 mb-2">
+                  <CountUp to={180} />
+                </div>
                 <div className="text-sm text-gray-500 font-medium uppercase tracking-wider">Total Questions</div>
               </motion.div>
               <motion.div initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }} transition={{ delay: 0.3 }}>
-                <div className="text-4xl font-extrabold text-blue-600 mb-2">10k+</div>
+                <div className="text-4xl font-extrabold text-blue-600 mb-2">
+                  <CountUp to={10} suffix="k+" />
+                </div>
                 <div className="text-sm text-gray-500 font-medium uppercase tracking-wider">Happy Students</div>
               </motion.div>
             </div>
@@ -210,36 +219,48 @@ export default function Landing() {
         </section>
 
         {/* How It Works Section */}
-        <section id="how-it-works" className="py-24 bg-[#FBFBFA]">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="text-center max-w-3xl mx-auto mb-16">
-              <h2 className="text-3xl md:text-5xl font-extrabold text-gray-900 mb-6 tracking-tight">Your path to admission</h2>
-              <p className="text-lg text-gray-600">Four simple steps to mastery. We designed the workflow to exactly mirror how candidates prepare and sit for the actual examination.</p>
+        <section id="how-it-works" className="py-32 bg-[#FBFBFA] relative overflow-hidden">
+          <div className="absolute inset-0 z-0 pointer-events-none opacity-40">
+            <div className="absolute top-[30%] -right-10 w-[40%] h-[50%] rounded-full bg-blue-50 mix-blend-multiply blur-[80px]"></div>
+          </div>
+          
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+            <div className="text-center max-w-3xl mx-auto mb-20">
+              <h2 className="text-4xl md:text-5xl font-extrabold text-gray-900 mb-6 tracking-tight">Your path to admission</h2>
+              <p className="text-xl text-gray-600 leading-relaxed">Four simple steps to mastery. We designed the workflow to exactly mirror how candidates prepare and sit for the actual examination.</p>
             </div>
             
-            <div className="grid md:grid-cols-4 gap-8 relative">
+            <div className="grid md:grid-cols-4 gap-6 relative">
               {/* Connecting line for desktop */}
-              <div className="hidden md:block absolute top-8 left-16 right-16 h-0.5 bg-gray-200 z-0"></div>
+              <div className="hidden md:block absolute top-[4rem] left-[10%] right-[10%] h-[2px] bg-gradient-to-r from-blue-100 via-blue-300 to-blue-100 z-0 border-t-2 border-dashed border-white"></div>
               
               {[
-                { step: "01", title: "Create Profile", desc: "Sign in with Google. Track your history securely." },
-                { step: "02", title: "Pick Subjects", desc: "Select 4 subjects. Use of English automatically included." },
-                { step: "03", title: "Take Mock Exam", desc: "180 questions in a strict 2-hour CBT environment." },
-                { step: "04", title: "Analyze & Rank", desc: "View detailed results and climb the global leaderboard." }
+                { step: "01", icon: UserPlus, title: "Create Profile", desc: "Sign in with Google. Track your history securely." },
+                { step: "02", icon: ListChecks, title: "Pick Subjects", desc: "Select 4 subjects. Use of English automatically included." },
+                { step: "03", icon: Laptop, title: "Take Mock Exam", desc: "180 questions in a strict 2-hour CBT environment." },
+                { step: "04", icon: Trophy, title: "Analyze & Rank", desc: "View detailed results and climb the global leaderboard." }
               ].map((s, i) => (
                 <motion.div 
                   key={s.step}
-                  initial={{ opacity: 0, y: 20 }}
+                  initial={{ opacity: 0, y: 30 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
-                  transition={{ delay: i * 0.1 }}
-                  className="relative z-10 flex flex-col items-center text-center group"
+                  transition={{ delay: i * 0.15, type: "spring", stiffness: 40 }}
+                  className="relative z-10 group"
                 >
-                  <div className="w-16 h-16 rounded-2xl bg-white border-2 border-blue-600 text-blue-600 flex items-center justify-center text-xl font-bold mb-6 shadow-lg group-hover:scale-110 group-hover:bg-blue-600 group-hover:text-white transition-all">
-                    {s.step}
+                  <div className="bg-white rounded-3xl p-8 border border-gray-100 shadow-xl shadow-blue-900/5 h-full relative overflow-hidden transition-all duration-300 hover:shadow-2xl hover:border-blue-200 hover:-translate-y-2">
+                    {/* Background massive number */}
+                    <div className="absolute -right-4 -top-8 text-9xl font-black text-gray-50/80 group-hover:text-blue-50/50 group-hover:scale-110 transition-all duration-500 pointer-events-none select-none">
+                      {s.step}
+                    </div>
+                    
+                    <div className="relative z-10 w-16 h-16 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center mb-8 border border-blue-100 group-hover:bg-blue-600 group-hover:text-white transition-colors duration-300">
+                      <s.icon className="w-8 h-8" />
+                    </div>
+                    
+                    <h3 className="relative z-10 text-xl font-bold text-gray-900 mb-3">{s.title}</h3>
+                    <p className="relative z-10 text-gray-600 leading-relaxed">{s.desc}</p>
                   </div>
-                  <h3 className="text-xl font-bold text-gray-900 mb-2">{s.title}</h3>
-                  <p className="text-gray-600 px-4">{s.desc}</p>
                 </motion.div>
               ))}
             </div>
