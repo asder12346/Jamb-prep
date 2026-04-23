@@ -384,9 +384,22 @@ export default function Exam() {
         <div className="max-w-2xl mx-auto">
           <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
             <div className="bg-blue-50/50 p-6 sm:p-10 border-b border-gray-200 text-center relative">
-               <div className={`absolute top-4 right-4 flex items-center font-mono text-sm font-bold bg-white px-3 py-1 rounded-lg border ${timeLeft < 300 ? 'text-red-600 border-red-200 bg-red-50 animate-pulse' : 'text-gray-900 border-gray-200'}`}>
-                 <Clock className="h-4 w-4 mr-2" />
-                 {formatTime(timeLeft)}
+               <div className={`absolute top-4 right-4 flex items-center font-mono text-sm font-bold bg-white pl-2 pr-3 py-1.5 rounded-lg border shadow-sm ${timeLeft < 300 ? 'text-red-600 border-red-200 bg-red-50' : 'text-gray-900 border-gray-200'}`}>
+                 <div className="relative w-6 h-6 flex items-center justify-center mr-2">
+                   <svg className="w-6 h-6 transform -rotate-90">
+                     <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" fill="transparent" className={`opacity-20 ${timeLeft < 300 ? 'text-red-600' : 'text-gray-400'}`} />
+                     <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" fill="transparent" 
+                       strokeDasharray={10 * 2 * Math.PI} 
+                       strokeDashoffset={10 * 2 * Math.PI * (1 - timeLeft / 7200)} 
+                       className={`transition-all duration-1000 ease-linear ${timeLeft < 300 ? 'text-red-600' : 'text-blue-600'}`} />
+                   </svg>
+                   <div className="absolute inset-0 flex items-center justify-center">
+                     <Clock className={`h-2.5 w-2.5 ${timeLeft < 300 ? 'text-red-600 animate-pulse' : 'text-blue-600'}`} />
+                   </div>
+                 </div>
+                 <span className={timeLeft < 300 ? 'animate-pulse' : ''}>
+                   {formatTime(timeLeft)}
+                 </span>
                </div>
                <h2 className="text-3xl font-extrabold text-gray-900 mb-2">Exam Review</h2>
                <p className="text-gray-600">Please review your exam status before final submission.</p>
@@ -499,9 +512,22 @@ export default function Exam() {
                ({currentQuestionIndex + 1} of 180 overall)
             </span>
           </div>
-          <div className={`flex items-center font-mono text-xl font-bold bg-gray-50 px-4 py-1.5 rounded-lg border ${timeLeft < 300 ? 'text-red-600 border-red-200 bg-red-50 animate-pulse' : 'text-gray-900 border-gray-200'}`}>
-            <Clock className="h-5 w-5 mr-3" />
-            {formatTime(timeLeft)}
+          <div className={`flex items-center font-mono text-xl font-bold bg-white shadow-sm pl-2 pr-4 py-1.5 rounded-lg border focus:outline-none transition-colors ${timeLeft < 300 ? 'text-red-600 border-red-200 bg-red-50' : 'text-gray-900 border-gray-200'}`}>
+            <div className="relative w-8 h-8 flex items-center justify-center mr-3">
+              <svg className="w-8 h-8 transform -rotate-90">
+                <circle cx="16" cy="16" r="14" stroke="currentColor" strokeWidth="2.5" fill="transparent" className={`opacity-20 ${timeLeft < 300 ? 'text-red-600' : 'text-gray-400'}`} />
+                <circle cx="16" cy="16" r="14" stroke="currentColor" strokeWidth="2.5" fill="transparent" 
+                  strokeDasharray={14 * 2 * Math.PI} 
+                  strokeDashoffset={14 * 2 * Math.PI * (1 - timeLeft / 7200)} 
+                  className={`transition-all duration-1000 ease-linear ${timeLeft < 300 ? 'text-red-600' : 'text-blue-600'}`} />
+              </svg>
+              <div className="absolute inset-0 flex items-center justify-center">
+                <Clock className={`h-3 w-3 ${timeLeft < 300 ? 'text-red-600 animate-pulse' : 'text-blue-600'}`} />
+              </div>
+            </div>
+            <span className={timeLeft < 300 ? 'animate-pulse' : ''}>
+              {formatTime(timeLeft)}
+            </span>
           </div>
         </div>
         
