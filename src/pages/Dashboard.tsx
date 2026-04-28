@@ -219,42 +219,46 @@ export default function Dashboard() {
   const subjectsNeeded = 4 - selectedSubjects.length;
 
   return (
-    <div className="min-h-screen bg-gray-50 font-sans">
-      <nav className="bg-white shadow-sm border-b border-gray-200">
+    <div className="min-h-screen bg-[#FBFBFA] font-sans">
+      <nav className="bg-white/80 backdrop-blur-xl border-b border-gray-200/50 sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between h-16">
-            <div className="flex items-center">
-              <div className="bg-blue-600 p-1.5 rounded-lg mr-2">
-                <BookOpen className="h-6 w-6 text-white" />
+          <div className="flex justify-between items-center h-16 sm:h-20 transition-all">
+            <div className="flex items-center space-x-3">
+              <div className="bg-gradient-to-br from-blue-600 to-indigo-600 p-2 rounded-xl shadow-md text-white">
+                <BookOpen className="h-5 w-5" />
               </div>
-              <span className="text-xl font-bold text-gray-900 hidden sm:block">JambPrep</span>
+              <span className="text-xl font-black tracking-tight text-gray-900 hidden sm:block">
+                JambPrep<span className="text-blue-600">.</span>
+              </span>
             </div>
-            <div className="flex items-center space-x-4">
+            <div className="flex items-center space-x-2 sm:space-x-4">
               <button
                 onClick={() => navigate('/leaderboard')}
-                className="text-gray-600 hover:text-blue-600 flex items-center font-medium transition-colors p-2 sm:px-3 sm:py-2 rounded-md hover:bg-gray-100"
+                className="text-gray-600 hover:text-blue-600 flex items-center font-bold transition-all p-2 sm:px-4 sm:py-2 rounded-full hover:bg-blue-50"
               >
-                <Trophy className="h-5 w-5 sm:mr-1.5 text-yellow-500" />
+                <Trophy className="h-5 w-5 sm:mr-2 text-amber-500" />
                 <span className="hidden sm:inline">Leaderboard</span>
               </button>
               <div className="hidden sm:block w-px h-6 bg-gray-200 mx-1"></div>
               <button 
                  onClick={() => navigate('/profile')}
-                 className="flex items-center space-x-3 p-1.5 pt-1.5 pb-1.5 rounded-full hover:bg-gray-100 transition-colors pr-3"
+                 className="flex items-center space-x-3 p-1 rounded-full hover:bg-blue-50 transition-colors sm:pr-4 border border-transparent hover:border-blue-100 group"
                  title="Go to Profile"
               >
-                 <div className="h-8 w-8 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center font-bold shadow-sm overflow-hidden border border-blue-200">
+                 <div className="h-9 w-9 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center font-bold shadow-sm overflow-hidden border-2 border-white group-hover:border-blue-200 transition-colors">
                    {profilePic ? (
                      <img src={profilePic} alt="Profile" className="w-full h-full object-cover" />
                    ) : (
                      user?.displayName?.charAt(0)?.toUpperCase() || 'U'
                    )}
                  </div>
-                 <span className="text-sm font-medium text-gray-700 hidden md:inline">Hi, {user?.displayName?.split(' ')[0]}</span>
+                 <span className="text-sm font-bold text-gray-700 hidden md:inline group-hover:text-blue-600 transition-colors">
+                   {user?.displayName?.split(' ')[0] || 'User'}
+                 </span>
               </button>
               <button
                 onClick={logout}
-                className="text-gray-400 hover:text-red-600 transition-colors p-2 rounded-full hover:bg-red-50 ml-2"
+                className="text-gray-400 hover:text-red-500 transition-colors p-2 rounded-full hover:bg-red-50 ml-1"
                 title="Sign out"
               >
                 <LogOut className="h-5 w-5" />

@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { doc, getDoc, updateDoc, collection, query, where, getDocs } from 'firebase/firestore';
 import { updateProfile } from 'firebase/auth';
+import imageCompression from 'browser-image-compression';
 import { db, handleFirestoreError, OperationType } from '../firebase';
 import { useAuth } from '../context/AuthContext';
 import { 
@@ -83,7 +84,7 @@ export default function Profile() {
     fetchUserData();
   }, [user]);
 
-  const handleImageSelect = (e: any) => {
+  const handleImageSelect = async (e: any) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
@@ -92,41 +93,25 @@ export default function Profile() {
       return;
     }
 
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      const img = new Image();
-      img.onload = () => {
-        // Compress image using canvas
-        const canvas = document.createElement('canvas');
-        const MAX_WIDTH = 300;
-        const MAX_HEIGHT = 300;
-        let width = img.width;
-        let height = img.height;
-
-        if (width > height) {
-          if (width > MAX_WIDTH) {
-            height *= MAX_WIDTH / width;
-            width = MAX_WIDTH;
-          }
-        } else {
-          if (height > MAX_HEIGHT) {
-            width *= MAX_HEIGHT / height;
-            height = MAX_HEIGHT;
-          }
-        }
-
-        canvas.width = width;
-        canvas.height = height;
-        const ctx = canvas.getContext('2d');
-        ctx?.drawImage(img, 0, 0, width, height);
-
-        // Convert to base64, max 0.8 quality to keep it small for Firestore
-        const dataUrl = canvas.toDataURL('image/jpeg', 0.8);
+    try {
+      const options = {
+        maxSizeMB: 0.1, // compress aggressively for Firestore limit (100KB)
+        maxWidthOrHeight: 300,
+        useWebWorker: true,
+        fileType: 'image/jpeg',
+      };
+      const compressedFile = await imageCompression(file, options);
+      
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        const dataUrl = event.target?.result as string;
         setProfilePicture(dataUrl);
       };
-      img.src = event.target?.result as string;
-    };
-    reader.readAsDataURL(file);
+      reader.readAsDataURL(compressedFile);
+    } catch (error) {
+      console.error(error);
+      setMessage({ text: 'Failed to compress image.', type: 'error' });
+    }
   };
 
   const handleSaveProfile = async (e: any) => {

@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { collection, doc, getDoc, addDoc } from 'firebase/firestore';
+import { collection, doc, getDoc, addDoc, updateDoc, setDoc } from 'firebase/firestore';
 import { db, handleFirestoreError, OperationType } from '../firebase';
 import { useAuth } from '../context/AuthContext';
 import { 
@@ -207,6 +207,29 @@ export default function Exam() {
         date: new Date().toISOString(),
         timeUsed: initialDuration - timeLeft
       });
+      
+      // Update overall XP for leaderboard gamification
+      try {
+         const userStatsRef = doc(db, 'user_stats', user.uid);
+         const userStatsDoc = await getDoc(userStatsRef);
+         if (userStatsDoc.exists()) {
+            const currentXP = userStatsDoc.data().totalXP || 0;
+            const currentHighScore = userStatsDoc.data().highScore || 0;
+            await updateDoc(userStatsRef, {
+               totalXP: currentXP + jambScaledScore,
+               highScore: Math.max(currentHighScore, jambScaledScore),
+               displayName: user.displayName || 'Unknown Student'
+            });
+         } else {
+            await setDoc(userStatsRef, {
+               totalXP: jambScaledScore,
+               highScore: jambScaledScore,
+               displayName: user.displayName || 'Unknown Student'
+            });
+         }
+      } catch (err) {
+         console.warn('Failed to update user XP', err);
+      }
       
       // Clear auto-save data
       localStorage.removeItem(`jambprep_exam_${user.uid}`);

@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { 
   BookOpen, GraduationCap, Clock, LineChart, Target, CheckCircle, 
@@ -23,36 +24,40 @@ export default function Landing() {
   const { user } = useAuth();
   const navigate = useNavigate();
 
+  const [activeFaq, setActiveFaq] = useState<number | null>(0);
+
   if (user) {
     return <Navigate to="/dashboard" replace />;
   }
 
   return (
-    <div className="min-h-screen bg-[#FBFBFA] font-sans text-gray-900 selection:bg-blue-200 overflow-hidden">
+    <div className="min-h-screen bg-[#FBFBFA] font-sans text-gray-900 selection:bg-blue-200 overflow-hidden relative">
       {/* Navigation */}
-      <nav className="bg-white/70 backdrop-blur-xl sticky top-0 z-50 border-b border-gray-200/50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
-          <div className="flex items-center space-x-2.5">
-            <div className="bg-blue-600 p-2 rounded-xl shadow-sm shadow-blue-200 flex items-center justify-center">
-              <BookOpen className="h-5 w-5 text-white" />
+      <nav className="fixed top-0 inset-x-0 sm:top-6 z-50 flex justify-center pointer-events-none px-0 sm:px-6">
+        <div className="pointer-events-auto bg-white/80 backdrop-blur-xl border border-gray-200/50 sm:shadow-2xl sm:shadow-blue-900/5 sm:rounded-full w-full max-w-5xl px-4 sm:px-6 h-16 sm:h-auto sm:py-3.5 flex items-center justify-between transition-all">
+          <div className="flex items-center space-x-3">
+            <div className="bg-gradient-to-br from-blue-600 to-indigo-600 p-2 rounded-xl shadow-md text-white">
+              <BookOpen className="h-5 w-5" />
             </div>
-            <span className="text-xl font-extrabold tracking-tight text-gray-900">JambPrep</span>
+            <span className="text-xl font-black tracking-tight text-gray-900">
+              JambPrep<span className="text-blue-600">.</span>
+            </span>
           </div>
-          <div className="hidden md:flex items-center space-x-8 text-sm font-medium text-gray-600">
+          <div className="hidden md:flex items-center space-x-1 sm:space-x-8 text-sm font-bold text-gray-500 bg-gray-50/50 px-6 py-2 rounded-full border border-gray-100 mt-0">
             <a href="#features" className="hover:text-blue-600 transition-colors">Features</a>
             <a href="#how-it-works" className="hover:text-blue-600 transition-colors">How it Works</a>
             <a href="#faq" className="hover:text-blue-600 transition-colors">FAQ</a>
           </div>
-          <div className="flex items-center space-x-4">
+          <div className="flex items-center space-x-2 sm:space-x-4">
             <button
               onClick={() => navigate('/login')}
-              className="hidden md:inline-flex items-center justify-center px-4 py-2 text-sm font-semibold text-gray-700 hover:text-blue-600 transition-colors"
+              className="hidden md:inline-flex items-center justify-center px-4 py-2 text-sm font-bold text-gray-600 hover:text-blue-600 transition-colors"
             >
               Sign In
             </button>
             <button
               onClick={() => navigate('/signup')}
-              className="inline-flex items-center justify-center px-6 py-2.5 text-sm font-semibold text-white bg-gray-900 rounded-full hover:bg-gray-800 transition-colors shadow-sm"
+              className="inline-flex items-center justify-center px-6 py-2.5 text-sm font-bold text-white bg-blue-600 rounded-full hover:bg-blue-700 transition-all shadow-lg shadow-blue-500/25 hover:shadow-blue-500/40 hover:-translate-y-0.5 group"
             >
               Get Started
             </button>
@@ -60,11 +65,12 @@ export default function Landing() {
         </div>
       </nav>
 
-      <main>
+      <main className="pt-16 sm:pt-0">
         {/* Her Section */}
         <section className="relative pt-20 pb-32 lg:pt-32 lg:pb-40 overflow-hidden">
           {/* Background decorative elements */}
           <div className="absolute inset-0 z-0 pointer-events-none">
+            <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)]"></div>
             <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] rounded-full bg-blue-100/50 mix-blend-multiply blur-[80px] animate-blob"></div>
             <div className="absolute top-[20%] right-[-10%] w-[40%] h-[50%] rounded-full bg-emerald-50/50 mix-blend-multiply blur-[80px] animate-blob animation-delay-2000"></div>
             <div className="absolute -bottom-32 left-1/2 -translate-x-1/2 w-[80%] h-[40%] rounded-full bg-indigo-50/50 mix-blend-multiply blur-[100px] animate-blob animation-delay-4000"></div>
@@ -76,16 +82,17 @@ export default function Landing() {
             initial="hidden"
             animate="show"
           >
-            <motion.div variants={FADE_UP_ANIMATION_VARIANTS} className="flex justify-center mb-8">
-              <div className="inline-flex items-center space-x-2 bg-white text-blue-700 px-4 py-1.5 rounded-full text-sm font-medium border border-blue-100 shadow-sm">
-                <Sparkles className="h-4 w-4 text-blue-500" />
-                <span>Updated for 2026 JAMB CBT</span>
+            <motion.div variants={FADE_UP_ANIMATION_VARIANTS} className="flex justify-center mb-8 hover:scale-105 transition-transform cursor-pointer">
+              <div className="inline-flex items-center space-x-2 bg-white text-blue-700 px-4 py-1.5 rounded-full text-sm font-medium border border-blue-100 shadow-sm relative overflow-hidden group">
+                <div className="absolute inset-0 bg-blue-50 transform -translate-x-full group-hover:translate-x-0 transition-transform duration-300"></div>
+                <Sparkles className="h-4 w-4 text-blue-500 relative z-10" />
+                <span className="relative z-10">Updated for 2026 JAMB CBT</span>
               </div>
             </motion.div>
             
             <motion.h1 variants={FADE_UP_ANIMATION_VARIANTS} className="text-5xl md:text-7xl lg:text-8xl font-black tracking-tight text-gray-900 mb-8 leading-[1.1]">
               Score 300+ with <br className="hidden md:block" />
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-600 bg-300% animate-gradient">
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-600 bg-[length:200%_auto] animate-gradient">
                 Zero Anxiety.
               </span>
             </motion.h1>
@@ -97,16 +104,17 @@ export default function Landing() {
             <motion.div variants={FADE_UP_ANIMATION_VARIANTS} className="flex flex-col sm:flex-row items-center justify-center space-y-4 sm:space-y-0 sm:space-x-4">
               <button
                 onClick={() => navigate('/signup')}
-                className="w-full sm:w-auto inline-flex items-center justify-center px-8 py-4 text-base font-bold text-white bg-blue-600 rounded-full hover:bg-blue-700 transition-all hover:scale-105 shadow-lg shadow-blue-200/50 group"
+                className="w-full sm:w-auto inline-flex items-center justify-center px-8 py-4 text-base font-bold text-white bg-blue-600 rounded-full hover:bg-blue-700 transition-all hover:scale-105 shadow-lg shadow-blue-200/50 hover:shadow-blue-500/25 group overflow-hidden relative"
               >
-                Start Practicing Now
-                <ChevronRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                <div className="absolute inset-0 w-full h-full bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:animate-shimmer" />
+                <span className="relative">Start Practicing Now</span>
+                <ChevronRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform relative" />
               </button>
               <button
                 onClick={() => document.getElementById('how-it-works')?.scrollIntoView({ behavior: 'smooth' })}
-                className="w-full sm:w-auto inline-flex items-center justify-center px-8 py-4 text-base font-bold text-gray-700 bg-white border border-gray-200 rounded-full hover:bg-gray-50 transition-all shadow-sm"
+                className="w-full sm:w-auto inline-flex items-center justify-center px-8 py-4 text-base font-bold text-gray-700 bg-white border border-gray-200 rounded-full hover:bg-gray-50 transition-all hover:scale-105 shadow-sm group"
               >
-                <PlayCircle className="mr-2 w-5 h-5 text-gray-500" />
+                <PlayCircle className="mr-2 w-5 h-5 text-gray-500 group-hover:text-blue-500 transition-colors" />
                 See How It Works
               </button>
             </motion.div>
@@ -114,40 +122,49 @@ export default function Landing() {
             {/* Animated Floating UI Elements (Hero Imagery) */}
             <motion.div 
               variants={FADE_UP_ANIMATION_VARIANTS}
-              className="mt-20 relative max-w-5xl mx-auto hidden md:block"
+              className="mt-20 relative max-w-5xl mx-auto hidden md:block perspective-1000"
+              whileHover={{ scale: 1.02 }}
+              transition={{ duration: 0.5 }}
             >
-              <div className="relative rounded-2xl border border-gray-200/60 shadow-2xl bg-white p-2">
-                <div className="rounded-xl overflow-hidden border border-gray-100 bg-gray-50 flex flex-col h-80 relative">
+              <div className="relative rounded-2xl border border-gray-200/60 shadow-2xl bg-white p-2 transform-gpu rotate-x-2 hover:rotate-x-0 transition-transform duration-500">
+                <div className="rounded-xl overflow-hidden border border-gray-100 bg-gray-50 flex flex-col h-80 relative group">
                   {/* Mock Window Header */}
-                  <div className="h-12 border-b border-gray-200 bg-white flex items-center px-4 justify-between">
+                  <div className="h-12 border-b border-gray-200 bg-white flex items-center px-4 justify-between transition-colors group-hover:bg-gray-50">
                     <div className="flex space-x-2">
-                      <div className="w-3 h-3 rounded-full bg-gray-200"></div>
-                      <div className="w-3 h-3 rounded-full bg-gray-200"></div>
-                      <div className="w-3 h-3 rounded-full bg-gray-200"></div>
+                      <div className="w-3 h-3 rounded-full bg-red-400"></div>
+                      <div className="w-3 h-3 rounded-full bg-amber-400"></div>
+                      <div className="w-3 h-3 rounded-full bg-green-400"></div>
                     </div>
-                    <div className="flex items-center space-x-2 text-sm font-mono text-gray-500 bg-gray-100 px-3 py-1 rounded-md">
+                    <div className="flex items-center space-x-2 text-sm font-mono text-gray-500 bg-gray-100 px-3 py-1 rounded-md animate-pulse">
                       <Clock className="w-4 h-4 text-blue-500" />
                       <span>01:45:20</span>
                     </div>
                   </div>
                   {/* Mock Body */}
-                  <div className="flex-1 flex p-6 gap-6 relative">
-                    <div className="flex-1 space-y-4">
-                      <div className="w-24 h-6 bg-blue-100 rounded-md"></div>
+                  <div className="flex-1 flex p-6 gap-6 relative overflow-hidden">
+                    <div className="absolute inset-0 bg-blue-50/50 translate-x-full group-hover:translate-x-0 transition-transform duration-700 ease-out" />
+                    <div className="flex-1 space-y-4 relative z-10">
+                      <div className="w-24 h-6 bg-blue-200 rounded-md"></div>
                       <div className="h-4 w-full bg-gray-200 rounded-md mt-4"></div>
                       <div className="h-4 w-5/6 bg-gray-200 rounded-md"></div>
                       <div className="space-y-3 pt-6">
-                        <div className="h-12 w-full bg-white border-2 border-blue-500 rounded-xl"></div>
-                        <div className="h-12 w-full bg-white border border-gray-200 rounded-xl"></div>
-                        <div className="h-12 w-full bg-white border border-gray-200 rounded-xl"></div>
+                        <div className="h-12 w-full bg-white border-2 border-blue-500 rounded-xl relative overflow-hidden">
+                          <motion.div 
+                             className="absolute inset-0 bg-blue-50/50" 
+                             animate={{ x: ["-100%", "200%"] }} 
+                             transition={{ repeat: Infinity, duration: 2.5, ease: "linear" }}
+                          />
+                        </div>
+                        <div className="h-12 w-full bg-white border border-gray-200 rounded-xl hover:border-blue-300 transition-colors cursor-pointer"></div>
+                        <div className="h-12 w-full bg-white border border-gray-200 rounded-xl hover:border-blue-300 transition-colors cursor-pointer"></div>
                       </div>
                     </div>
                     {/* Floating Sidebar element */}
-                    <div className="w-48 bg-white border border-gray-200 rounded-xl shadow-sm p-4 hidden sm:block">
+                    <div className="w-48 bg-white border border-gray-200 rounded-xl shadow-sm p-4 hidden sm:block relative z-10 hover:shadow-md transition-shadow">
                       <div className="w-full h-8 bg-gray-100 rounded mb-4"></div>
                       <div className="grid grid-cols-4 gap-2">
                         {[...Array(12)].map((_, i) => (
-                          <div key={i} className={`h-8 rounded-md ${i === 3 ? 'bg-yellow-400 ring-2 ring-yellow-200' : i < 5 ? 'bg-green-500' : 'bg-blue-100'}`}></div>
+                          <div key={i} className={`h-8 rounded-md transition-transform hover:scale-110 cursor-pointer ${i === 3 ? 'bg-yellow-400 ring-2 ring-yellow-200 shadow-lg shadow-yellow-200/50' : i < 5 ? 'bg-green-500' : 'bg-blue-100'}`}></div>
                         ))}
                       </div>
                     </div>
@@ -158,10 +175,12 @@ export default function Landing() {
                 <motion.div 
                   animate={{ y: [0, -10, 0] }}
                   transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-                  className="absolute -right-8 -top-8 bg-white p-4 rounded-2xl shadow-xl border border-gray-100 flex items-center space-x-4"
+                  whileHover={{ scale: 1.05 }}
+                  className="absolute -right-8 -top-8 bg-white p-4 rounded-2xl shadow-xl shadow-gray-200/50 border border-gray-100 flex items-center space-x-4 cursor-pointer"
                 >
-                  <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
-                    <CheckCircle className="w-6 h-6 text-green-600" />
+                  <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center relative">
+                    <div className="absolute inset-0 bg-green-400 rounded-full animate-ping opacity-60"></div>
+                    <CheckCircle className="w-6 h-6 text-green-600 relative z-10" />
                   </div>
                   <div>
                     <p className="text-sm text-gray-500 font-medium">Result Analytics</p>
@@ -173,12 +192,13 @@ export default function Landing() {
                 <motion.div 
                   animate={{ y: [0, 15, 0] }}
                   transition={{ duration: 5, repeat: Infinity, ease: "easeInOut", delay: 1 }}
-                  className="absolute -left-10 bottom-10 bg-white p-4 rounded-xl shadow-xl border border-gray-100"
+                  whileHover={{ scale: 1.05 }}
+                  className="absolute -left-10 bottom-10 bg-white p-4 rounded-xl shadow-xl shadow-blue-900/5 border border-gray-100 cursor-pointer"
                 >
                   <div className="flex gap-2 flex-wrap max-w-[200px]">
-                    <span className="px-3 py-1 bg-green-100 text-green-700 font-medium text-xs rounded-full shadow-sm mb-1">Use of English</span>
-                    <span className="px-3 py-1 bg-blue-100 text-blue-700 font-medium text-xs rounded-full shadow-sm mb-1">Physics</span>
-                    <span className="px-3 py-1 bg-blue-100 text-blue-700 font-medium text-xs rounded-full shadow-sm">Chemistry</span>
+                    <span className="px-3 py-1 bg-green-100 text-green-700 font-medium text-xs rounded-full shadow-sm mb-1 hover:bg-green-200 transition-colors">Use of English</span>
+                    <span className="px-3 py-1 bg-blue-100 text-blue-700 font-medium text-xs rounded-full shadow-sm mb-1 hover:bg-blue-200 transition-colors">Physics</span>
+                    <span className="px-3 py-1 bg-violet-100 text-violet-700 font-medium text-xs rounded-full shadow-sm hover:bg-violet-200 transition-colors">Chemistry</span>
                   </div>
                 </motion.div>
 
@@ -186,10 +206,11 @@ export default function Landing() {
                 <motion.div 
                   animate={{ y: [0, -12, 0] }}
                   transition={{ duration: 4.5, repeat: Infinity, ease: "easeInOut", delay: 0.5 }}
-                  className="absolute -left-6 top-20 bg-white p-3 rounded-2xl shadow-xl border border-gray-100 flex items-center space-x-3 hidden sm:flex"
+                  whileHover={{ scale: 1.05 }}
+                  className="absolute -left-6 top-20 bg-white p-3 rounded-2xl shadow-xl shadow-orange-900/5 border border-gray-100 flex items-center space-x-3 hidden sm:flex cursor-pointer"
                 >
                   <div className="w-10 h-10 bg-orange-100 rounded-full flex items-center justify-center">
-                    <Zap className="w-5 h-5 text-orange-500" />
+                    <Zap className="w-5 h-5 text-orange-500 animate-pulse" />
                   </div>
                   <div>
                     <p className="text-[10px] text-gray-500 font-bold uppercase tracking-wider">Level 12</p>
@@ -247,11 +268,11 @@ export default function Landing() {
             
             <div className="grid md:grid-cols-4 gap-6 relative">
               {/* Animated Connecting line for desktop */}
-              <div className="hidden md:block absolute top-[4rem] left-[12%] right-[12%] h-[2px] bg-blue-100/50 z-0 overflow-hidden rounded-full">
+              <div className="hidden md:block absolute top-[4rem] left-[12%] right-[12%] h-[2px] bg-gradient-to-r from-transparent via-blue-200 to-transparent z-0 overflow-hidden rounded-full">
                 <motion.div 
-                  className="absolute inset-y-0 left-0 w-1/3 bg-gradient-to-r from-transparent via-blue-500 to-transparent"
+                  className="absolute inset-y-0 left-0 w-1/3 bg-gradient-to-r from-transparent via-blue-600 to-transparent blur-[1px]"
                   animate={{ x: ['-100%', '300%'] }}
-                  transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
+                  transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
                 />
               </div>
               
@@ -269,18 +290,21 @@ export default function Landing() {
                   transition={{ delay: i * 0.15, type: "spring", stiffness: 40 }}
                   className="relative z-10 group"
                 >
-                  <div className="bg-white rounded-3xl p-8 border border-gray-100 shadow-xl shadow-blue-900/5 h-full relative overflow-hidden transition-all duration-300 hover:shadow-2xl hover:border-blue-200 hover:-translate-y-2">
-                    {/* Background massive number */}
-                    <div className="absolute -right-4 -top-8 text-9xl font-black text-gray-50/80 group-hover:text-blue-50/50 group-hover:scale-110 transition-all duration-500 pointer-events-none select-none">
-                      {s.step}
+                  <div className="bg-white rounded-3xl p-8 border border-gray-100 shadow-xl shadow-blue-900/5 h-full relative overflow-hidden transition-all duration-300 hover:shadow-2xl hover:border-blue-200 hover:-translate-y-2 group">
+                    {/* Background decorative blob */}
+                    <div className="absolute -right-10 -top-10 w-40 h-40 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-full blur-2xl group-hover:from-blue-100 group-hover:to-indigo-100 transition-colors duration-500 -z-10"></div>
+                    
+                    <div className="flex items-start justify-between mb-8 relative z-10">
+                      <div className="w-16 h-16 bg-white text-blue-600 rounded-2xl flex items-center justify-center border border-gray-100 shadow-md group-hover:bg-blue-600 group-hover:text-white transition-all duration-300 ring-1 ring-black/5 group-hover:shadow-blue-500/25">
+                        <s.icon className="w-8 h-8" />
+                      </div>
+                      <div className="text-5xl font-black text-transparent bg-clip-text bg-gradient-to-br from-blue-400 to-indigo-600 drop-shadow-sm group-hover:scale-110 group-hover:rotate-3 transition-transform duration-500 select-none">
+                        {s.step}
+                      </div>
                     </div>
                     
-                    <div className="relative z-10 w-16 h-16 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center mb-8 border border-blue-100 group-hover:bg-blue-600 group-hover:text-white transition-colors duration-300">
-                      <s.icon className="w-8 h-8" />
-                    </div>
-                    
-                    <h3 className="relative z-10 text-xl font-bold text-gray-900 mb-3">{s.title}</h3>
-                    <p className="relative z-10 text-gray-600 leading-relaxed">{s.desc}</p>
+                    <h3 className="relative z-10 text-xl font-bold text-gray-900 mb-3 group-hover:text-blue-700 transition-colors">{s.title}</h3>
+                    <p className="relative z-10 text-gray-600 leading-relaxed font-medium">{s.desc}</p>
                   </div>
                 </motion.div>
               ))}
@@ -503,15 +527,30 @@ export default function Landing() {
                 { q: "Do you use actual past questions?", a: "We curate high-quality questions mimicking past questions from official JAMB repositories stretching back to 2010." },
                 { q: "Is Use of English strictly enforced?", a: "Yes! Just like the real exam, Use of English is compulsory and constitutes 60 questions, while your other 3 chosen subjects contain 40 questions each." },
               ].map((faq, i) => (
-                <div key={i} className="bg-gray-50 rounded-2xl p-6 border border-gray-100 relative group cursor-pointer hover:border-blue-200 transition-colors">
-                  <div className="flex z-10 relative">
-                    <div className="flex-shrink-0 mt-1">
-                      <HelpCircle className="w-6 h-6 text-blue-500" />
+                <div 
+                  key={i} 
+                  onClick={() => setActiveFaq(activeFaq === i ? null : i)}
+                  className={`bg-white rounded-2xl p-6 border ${activeFaq === i ? 'border-blue-300 shadow-md ring-1 ring-blue-100' : 'border-gray-100 shadow-sm'} relative cursor-pointer hover:border-blue-200 transition-all duration-300 overflow-hidden group`}
+                >
+                  <div className="flex z-10 relative items-center justify-between">
+                    <div className="flex items-center">
+                      <div className={`flex-shrink-0 flex items-center justify-center w-10 h-10 rounded-xl transition-colors duration-300 ${activeFaq === i ? 'bg-blue-600 text-white' : 'bg-blue-50 text-blue-500 group-hover:bg-blue-100'}`}>
+                        <HelpCircle className="w-5 h-5" />
+                      </div>
+                      <div className="ml-4">
+                        <h4 className={`text-lg font-bold transition-colors ${activeFaq === i ? 'text-blue-600' : 'text-gray-900 group-hover:text-blue-600'}`}>
+                          {faq.q}
+                        </h4>
+                      </div>
                     </div>
-                    <div className="ml-4">
-                      <h4 className="text-lg font-bold text-gray-900 mb-2 group-hover:text-blue-600 transition-colors">{faq.q}</h4>
-                      <p className="text-gray-600">{faq.a}</p>
+                    <div className={`transition-transform duration-300 ${activeFaq === i ? 'rotate-180' : ''}`}>
+                      <ChevronRight className={`w-5 h-5 ${activeFaq === i ? 'text-blue-600' : 'text-gray-400 group-hover:text-blue-500'}`} />
                     </div>
+                  </div>
+                  <div 
+                    className={`transition-all duration-300 ease-in-out ${activeFaq === i ? 'max-h-40 opacity-100 mt-4' : 'max-h-0 opacity-0'} overflow-hidden pl-14`}
+                  >
+                    <p className="text-gray-600 leading-relaxed font-medium">{faq.a}</p>
                   </div>
                 </div>
               ))}
