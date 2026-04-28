@@ -12,11 +12,13 @@ import Dashboard from './pages/Dashboard';
 import Exam from './pages/Exam';
 import Leaderboard from './pages/Leaderboard';
 import Profile from './pages/Profile';
+import InstallPrompt from './components/InstallPrompt';
 
 export default function App() {
   return (
     <AuthProvider>
       <Router>
+        <InstallPrompt />
         <Routes>
           <Route path="/" element={<Landing />} />
           <Route path="/login" element={<Login />} />

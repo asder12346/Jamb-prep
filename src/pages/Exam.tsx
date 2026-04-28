@@ -22,6 +22,11 @@ export default function Exam() {
   const [reviewMarked, setReviewMarked] = useState<Record<string, boolean>>({});
   
   const [timeLeft, setTimeLeft] = useState(7200); // 2 hours
+  const [initialDuration, setInitialDuration] = useState(7200);
+  const [examStarted, setExamStarted] = useState(false);
+  const [configHours, setConfigHours] = useState(2);
+  const [configMinutes, setConfigMinutes] = useState(0);
+  
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   
@@ -43,8 +48,10 @@ export default function Exam() {
              setAnswers(savedData.answers || {});
              setReviewMarked(savedData.reviewMarked || {});
              setTimeLeft(savedData.timeLeft || 7200);
+             setInitialDuration(savedData.initialDuration || 7200);
              setCurrentQuestionIndex(savedData.currentQuestionIndex || 0);
              setLoading(false);
+             setExamStarted(true);
              return;
           } catch(e) {
              console.error("Failed to parse saved exam", e);
@@ -98,16 +105,17 @@ export default function Exam() {
     answers,
     reviewMarked,
     timeLeft,
-    currentQuestionIndex
+    currentQuestionIndex,
+    initialDuration
   });
 
   // Keep ref synchronized with latest state
   useEffect(() => {
-    syncRef.current = { questions, answers, reviewMarked, timeLeft, currentQuestionIndex };
-  }, [questions, answers, reviewMarked, timeLeft, currentQuestionIndex]);
+    syncRef.current = { questions, answers, reviewMarked, timeLeft, currentQuestionIndex, initialDuration };
+  }, [questions, answers, reviewMarked, timeLeft, currentQuestionIndex, initialDuration]);
 
   useEffect(() => {
-    if (loading || examFinished || questions.length === 0 || !user) return;
+    if (loading || examFinished || questions.length === 0 || !user || !examStarted) return;
     
     // Save to local storage synchronously
     const saveToLocal = () => {
@@ -125,10 +133,10 @@ export default function Exam() {
       clearInterval(syncInterval);
       window.removeEventListener('beforeunload', saveToLocal);
     };
-  }, [loading, examFinished, questions.length, user]);
+  }, [loading, examFinished, questions.length, user, examStarted]);
 
   useEffect(() => {
-    if (loading || examFinished || timeLeft <= 0) return;
+    if (loading || examFinished || timeLeft <= 0 || !examStarted) return;
 
     const timer = setInterval(() => {
       setTimeLeft((prev) => Math.max(0, prev - 1));
@@ -197,7 +205,7 @@ export default function Exam() {
         rawTotal: 180,
         subjectBreakdown: subjectBreakdown,
         date: new Date().toISOString(),
-        timeUsed: 7200 - timeLeft
+        timeUsed: initialDuration - timeLeft
       });
       
       // Clear auto-save data
@@ -209,7 +217,7 @@ export default function Exam() {
         rawScore: rawGlobalScore,
         rawTotal: 180,
         breakdown: subjectBreakdown,
-        timeUsed: 7200 - timeLeft
+        timeUsed: initialDuration - timeLeft
       });
       setExamFinished(true);
       setShowReviewScreen(false); // Make sure review screen hides
@@ -243,6 +251,87 @@ export default function Exam() {
           Return to Dashboard
         </button>
       </div>
+    );
+  }
+
+  // Pre-exam Configuration Screen
+  if (!examStarted) {
+    return (
+       <div className="min-h-screen bg-[#FBFBFA] py-12 px-4 sm:px-6 flex items-center justify-center font-sans">
+         <div className="bg-white max-w-lg w-full rounded-3xl shadow-xl border border-gray-100 overflow-hidden">
+           <div className="bg-blue-600 p-8 text-center text-white relative">
+             <div className="absolute top-0 right-0 p-8 opacity-10 blur-[2px]">
+                <Clock className="w-32 h-32" />
+             </div>
+             <h2 className="text-3xl font-black mb-2 relative z-10 tracking-tight">Configure Exam</h2>
+             <p className="text-blue-100 font-medium relative z-10">Adjust the timer duration for your practice session.</p>
+           </div>
+           
+           <div className="p-8">
+             <div className="mb-8">
+               <label className="block text-sm font-bold text-gray-700 uppercase tracking-widest mb-4">Set Timer Duration</label>
+               <div className="grid grid-cols-2 gap-4">
+                 <div>
+                   <label className="block text-xs font-semibold text-gray-500 mb-1">Hours</label>
+                   <select 
+                     value={configHours}
+                     onChange={(e) => setConfigHours(Number(e.target.value))}
+                     className="w-full bg-gray-50 border border-gray-200 text-gray-900 rounded-xl p-3 font-bold focus:ring-2 focus:ring-blue-600 outline-none"
+                   >
+                     {[0, 1, 2, 3, 4].map(h => (
+                        <option key={`h-${h}`} value={h}>{h} {h === 1 ? 'Hour' : 'Hours'}</option>
+                     ))}
+                   </select>
+                 </div>
+                 <div>
+                   <label className="block text-xs font-semibold text-gray-500 mb-1">Minutes</label>
+                   <select 
+                     value={configMinutes}
+                     onChange={(e) => setConfigMinutes(Number(e.target.value))}
+                     className="w-full bg-gray-50 border border-gray-200 text-gray-900 rounded-xl p-3 font-bold focus:ring-2 focus:ring-blue-600 outline-none"
+                   >
+                     {[0, 15, 30, 45].map(m => (
+                        <option key={`m-${m}`} value={m}>{m} Minutes</option>
+                     ))}
+                   </select>
+                  </div>
+               </div>
+               
+               {configHours === 0 && configMinutes === 0 && (
+                 <p className="text-red-500 text-xs font-bold mt-3">Timer duration must be greater than zero.</p>
+               )}
+             </div>
+
+             <div className="bg-blue-50 border border-blue-100 rounded-xl p-4 mb-8 flex items-start">
+               <CheckCircle2 className="w-5 h-5 text-blue-600 mr-3 flex-shrink-0 mt-0.5" />
+               <p className="text-sm text-blue-900 font-medium leading-relaxed">
+                 The standard JAMB allowed time is <strong className="font-bold">2 Hours</strong> for 180 questions. Setting a shorter time is great for speed training!
+               </p>
+             </div>
+             
+             <div className="flex gap-4">
+               <button 
+                 onClick={() => navigate('/dashboard')}
+                 className="flex-1 py-4 bg-gray-100 text-gray-700 hover:bg-gray-200 font-bold rounded-xl transition-all border border-gray-200"
+               >
+                 Cancel
+               </button>
+               <button 
+                 onClick={() => {
+                   const totalSecs = (configHours * 3600) + (configMinutes * 60);
+                   setInitialDuration(totalSecs);
+                   setTimeLeft(totalSecs);
+                   setExamStarted(true);
+                 }}
+                 disabled={configHours === 0 && configMinutes === 0}
+                 className="flex-1 py-4 bg-blue-600 text-white shadow-lg shadow-blue-600/30 font-bold rounded-xl hover:bg-blue-700 hover:shadow-blue-600/40 transition-all disabled:opacity-50 disabled:shadow-none"
+               >
+                 Start Exam
+               </button>
+             </div>
+           </div>
+         </div>
+       </div>
     );
   }
 
@@ -407,7 +496,7 @@ export default function Exam() {
                      <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" fill="transparent" className={`opacity-20 ${timeLeft < 300 ? 'text-red-600' : 'text-gray-400'}`} />
                      <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" fill="transparent" 
                        strokeDasharray={10 * 2 * Math.PI} 
-                       strokeDashoffset={10 * 2 * Math.PI * (1 - timeLeft / 7200)} 
+                       strokeDashoffset={10 * 2 * Math.PI * (1 - timeLeft / initialDuration)} 
                        className={`transition-all duration-1000 ease-linear ${timeLeft < 300 ? 'text-red-600' : 'text-blue-600'}`} />
                    </svg>
                    <div className="absolute inset-0 flex items-center justify-center">
@@ -535,7 +624,7 @@ export default function Exam() {
                 <circle cx="16" cy="16" r="14" stroke="currentColor" strokeWidth="2.5" fill="transparent" className={`opacity-20 ${timeLeft < 300 ? 'text-red-600' : 'text-gray-400'}`} />
                 <circle cx="16" cy="16" r="14" stroke="currentColor" strokeWidth="2.5" fill="transparent" 
                   strokeDasharray={14 * 2 * Math.PI} 
-                  strokeDashoffset={14 * 2 * Math.PI * (1 - timeLeft / 7200)} 
+                  strokeDashoffset={14 * 2 * Math.PI * (1 - timeLeft / initialDuration)} 
                   className={`transition-all duration-1000 ease-linear ${timeLeft < 300 ? 'text-red-600' : 'text-blue-600'}`} />
               </svg>
               <div className="absolute inset-0 flex items-center justify-center">

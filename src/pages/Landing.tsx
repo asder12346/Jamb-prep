@@ -181,6 +181,21 @@ export default function Landing() {
                     <span className="px-3 py-1 bg-blue-100 text-blue-700 font-medium text-xs rounded-full shadow-sm">Chemistry</span>
                   </div>
                 </motion.div>
+
+                {/* Floating overlay 3: Gamification */}
+                <motion.div 
+                  animate={{ y: [0, -12, 0] }}
+                  transition={{ duration: 4.5, repeat: Infinity, ease: "easeInOut", delay: 0.5 }}
+                  className="absolute -left-6 top-20 bg-white p-3 rounded-2xl shadow-xl border border-gray-100 flex items-center space-x-3 hidden sm:flex"
+                >
+                  <div className="w-10 h-10 bg-orange-100 rounded-full flex items-center justify-center">
+                    <Zap className="w-5 h-5 text-orange-500" />
+                  </div>
+                  <div>
+                    <p className="text-[10px] text-gray-500 font-bold uppercase tracking-wider">Level 12</p>
+                    <p className="text-sm font-bold text-gray-900">+312 XP Earned</p>
+                  </div>
+                </motion.div>
               </div>
             </motion.div>
           </motion.div>
@@ -244,7 +259,7 @@ export default function Landing() {
                 { step: "01", icon: UserPlus, title: "Create Profile", desc: "Sign in with Google. Track your history securely." },
                 { step: "02", icon: ListChecks, title: "Pick Subjects", desc: "Select 4 subjects. Use of English automatically included." },
                 { step: "03", icon: Laptop, title: "Take Mock Exam", desc: "180 questions in a strict 2-hour CBT environment." },
-                { step: "04", icon: Trophy, title: "Analyze & Rank", desc: "View detailed results and climb the global leaderboard." }
+                { step: "04", icon: Trophy, title: "Level Up & Rank", desc: "Earn XP, unlock badges, and climb the leaderboard." }
               ].map((s, i) => (
                 <motion.div 
                   key={s.step}
@@ -341,35 +356,60 @@ export default function Landing() {
                 </div>
               </motion.div>
 
-              {/* Bento 3: Leaderboard & Analytics */}
+              {/* Bento 3: Gamified Progression */}
+              <motion.div 
+                initial={{ opacity: 0, scale: 0.95 }}
+                whileInView={{ opacity: 1, scale: 1 }}
+                viewport={{ once: true }}
+                transition={{ delay: 0.3, type: "spring", stiffness: 50 }}
+                className="rounded-3xl overflow-hidden relative group"
+              >
+                <div className="absolute inset-0 bg-gradient-to-br from-amber-50 to-[#FFFBEB] border border-amber-100 rounded-3xl transition-colors duration-500 group-hover:border-amber-300 pointer-events-none"></div>
+                <div className="relative h-full p-10 flex flex-col justify-center">
+                  <div className="w-14 h-14 bg-white shadow-sm ring-1 ring-black/5 text-amber-500 flex items-center justify-center rounded-2xl mb-8 group-hover:scale-110 group-hover:bg-amber-500 group-hover:text-white transition-all duration-300">
+                    <Zap className="w-7 h-7" />
+                  </div>
+                  <h3 className="text-2xl font-extrabold text-gray-900 mb-4 tracking-tight">Gamified Progression</h3>
+                  <p className="text-gray-600 leading-relaxed">
+                    Level up as you practice. Earn Experience Points (XP) for every mock exam, build streaks, and unlock achievement badges to stay motivated throughout your prep.
+                  </p>
+                  
+                  {/* Decorative faint background icon */}
+                  <div className="absolute -right-4 -bottom-4 opacity-0 group-hover:opacity-10 transition-all duration-500 translate-x-4 translate-y-4 scale-110 group-hover:scale-100 pointer-events-none">
+                    <Trophy className="w-48 h-48 text-amber-500" />
+                  </div>
+                </div>
+              </motion.div>
+
+              {/* Bento 4: Leaderboard & Analytics */}
               <motion.div 
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                transition={{ delay: 0.3, type: "spring", stiffness: 50 }}
-                className="md:col-span-3 rounded-3xl overflow-hidden relative group"
+                transition={{ delay: 0.4, type: "spring", stiffness: 50 }}
+                className="md:col-span-2 rounded-3xl overflow-hidden relative group"
               >
                 <div className="absolute inset-0 bg-gradient-to-br from-[#F0FDF4] to-emerald-50/50 border border-emerald-100 rounded-3xl transition-colors duration-500 group-hover:border-emerald-300 pointer-events-none"></div>
-                <div className="relative p-10 md:p-14 flex flex-col md:flex-row items-center justify-between gap-10">
-                  <div className="max-w-xl">
+                <div className="relative p-10 md:p-12 flex flex-col md:flex-row items-center justify-between gap-10 h-full">
+                  <div className="max-w-md">
                     <div className="w-14 h-14 bg-white shadow-sm ring-1 ring-black/5 text-emerald-600 flex items-center justify-center rounded-2xl mb-8 group-hover:scale-110 group-hover:bg-emerald-600 group-hover:text-white transition-all duration-300">
                       <Target className="w-7 h-7" />
                     </div>
-                    <h3 className="text-3xl font-extrabold text-gray-900 mb-4 tracking-tight">Post-Exam Actionable Analytics</h3>
+                    <h3 className="text-3xl font-extrabold text-gray-900 mb-4 tracking-tight">Actionable Analytics</h3>
                     <p className="text-lg text-gray-700 leading-relaxed">
-                      Identify your weak subjects instantly after submitting. The nationwide leaderboard sparks competition, keeping you motivated to surpass your peers before the real test day.
+                      Identify your weak subjects instantly after submitting. The nationwide leaderboard sparks competition, keeping you motivated.
                     </p>
                   </div>
                   <div className="w-full md:w-auto shrink-0 relative group-hover:scale-105 transition-transform duration-500">
-                      <div className="bg-white p-8 rounded-3xl shadow-xl shadow-emerald-900/5 ring-1 ring-black/5 flex items-center space-x-10 transform -rotate-1 group-hover:rotate-0 transition-transform duration-500">
+                      <div className="bg-white p-6 rounded-3xl shadow-xl shadow-emerald-900/5 ring-1 ring-black/5 flex items-center space-x-8 transform -rotate-1 group-hover:rotate-0 transition-transform duration-500">
                          <div className="text-center group">
-                            <div className="text-5xl font-black text-transparent bg-clip-text bg-gradient-to-br from-emerald-500 to-green-600 tracking-tighter">#1</div>
-                            <div className="text-xs text-gray-400 font-bold uppercase tracking-widest mt-2 group-hover:text-emerald-500 transition-colors">Global Rank</div>
+                            <div className="text-3xl sm:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-br from-emerald-500 to-green-600 tracking-tighter">#1</div>
+                            <div className="text-[10px] sm:text-xs text-gray-400 font-bold uppercase tracking-widest mt-2 group-hover:text-emerald-500 transition-colors">Global Rank</div>
                          </div>
                          <div className="h-16 w-px bg-gradient-to-b from-transparent via-gray-200 to-transparent"></div>
                          <div className="text-center group">
-                            <div className="text-5xl font-black text-gray-900 tracking-tighter">312</div>
-                            <div className="text-xs text-gray-400 font-bold uppercase tracking-widest mt-2 group-hover:text-gray-900 transition-colors">High Score</div>
+                            <div className="text-3xl sm:text-5xl font-black text-gray-900 tracking-tighter">312</div>
+                            <div className="text-[10px] sm:text-xs text-gray-400 font-bold uppercase tracking-widest mt-2 group-hover:text-gray-900 transition-colors">High Score</div>
                          </div>
                       </div>
                   </div>
