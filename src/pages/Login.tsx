@@ -60,40 +60,13 @@ export default function Login() {
 
   return (
     <div className="min-h-screen bg-[#FBFBFA] flex">
-      {/* Left side - Visuals */}
-      <div className="hidden lg:flex lg:w-1/2 bg-blue-600 flex-col justify-center items-center relative overflow-hidden p-12">
-        <div className="absolute top-0 right-0 -m-32 w-96 h-96 bg-blue-500 rounded-full mix-blend-screen filter blur-[80px] opacity-70"></div>
-        <div className="absolute bottom-0 left-0 -m-32 w-96 h-96 bg-indigo-500 rounded-full mix-blend-screen filter blur-[80px] opacity-70"></div>
-        
-        <div className="relative z-10 text-white max-w-lg">
-          <div className="inline-flex items-center space-x-2 bg-white/10 px-4 py-1.5 rounded-full text-sm font-medium border border-blue-400 mb-8 backdrop-blur-md">
-            <BookOpen className="h-4 w-4 text-blue-200" />
-            <span>JambPrep Gateway</span>
-          </div>
-          <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight mb-6 leading-tight">
-             Master your <br/>JAMB examination
-          </h1>
-          <p className="text-blue-100 text-lg leading-relaxed mb-12">
-            Join thousands of Nigerian students who are identifying their weak subjects and destroying their CBT anxieties using our comprehensive, realistic mock application.
-          </p>
-          
-          <div className="flex -space-x-4">
-            <div className="w-12 h-12 rounded-full border-2 border-blue-600 bg-blue-400 flex items-center justify-center font-bold text-sm">JS</div>
-            <div className="w-12 h-12 rounded-full border-2 border-blue-600 bg-indigo-400 flex items-center justify-center font-bold text-sm">AM</div>
-            <div className="w-12 h-12 rounded-full border-2 border-blue-600 bg-emerald-400 flex items-center justify-center font-bold text-sm">TO</div>
-            <div className="w-12 h-12 rounded-full border-2 border-blue-600 bg-gray-900 flex items-center justify-center font-bold text-xs">+10k</div>
-          </div>
-          <p className="text-sm font-medium text-blue-200 mt-4">Over 10,000 active students already practicing.</p>
-        </div>
-      </div>
-
-      {/* Right side - Login/Signup form */}
-      <div className="w-full lg:w-1/2 flex flex-col justify-center px-4 sm:px-12 lg:px-24">
+      {/* Left side - Login/Signup form */}
+      <div className="w-full lg:w-1/2 flex flex-col justify-center px-4 sm:px-12 lg:px-24 xl:px-32 order-2 lg:order-1 bg-[#FBFBFA]">
         <Link to="/" className="inline-flex items-center text-sm font-medium text-gray-500 hover:text-blue-600 transition-colors absolute top-8">
            ← Back to Homepage
         </Link>
 
-        <div className="w-full max-w-md mx-auto">
+        <div className="w-full max-w-md mx-auto pt-16 lg:pt-0">
           <div className="mb-10 text-center lg:text-left">
             <h2 className="text-3xl font-extrabold text-gray-900 tracking-tight">
               {isLoginView ? 'Welcome back' : 'Create an account'}
@@ -210,6 +183,42 @@ export default function Login() {
               {isLoginView ? 'Sign up' : 'Sign in'}
             </button>
           </p>
+        </div>
+      </div>
+
+      {/* Right side - Visuals */}
+      <div className="hidden lg:flex lg:w-1/2 bg-blue-900 flex-col justify-end relative overflow-hidden order-1 lg:order-2">
+        <img 
+          src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&q=80&w=2071"
+          alt="Happy student checking results"
+          className="absolute inset-0 w-full h-full object-cover opacity-50 mix-blend-overlay"
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-blue-900 via-blue-900/60 to-transparent"></div>
+        
+        <div className="relative z-10 text-white p-12 lg:p-16 xl:p-24 w-full">
+          <div className="inline-flex items-center space-x-2 bg-white/20 px-4 py-2 rounded-full text-sm font-bold mb-6 backdrop-blur-md border border-white/20">
+            <BookOpen className="h-5 w-5 text-white" />
+            <span>JambPrep Advantage</span>
+          </div>
+          <h1 className="text-4xl lg:text-5xl font-black tracking-tight mb-6 leading-tight text-white drop-shadow-md">
+             Celebrate Your <br className="hidden xl:block"/>Success Story
+          </h1>
+          <p className="text-blue-100 text-lg leading-relaxed mb-10 max-w-lg font-medium drop-shadow">
+            Join thousands of Nigerian students who are destroying their CBT anxieties and securing their university admission using our comprehensive mock application.
+          </p>
+          
+          <div className="flex items-center bg-white/10 backdrop-blur-md p-4 flex-wrap gap-6 rounded-2xl border border-white/20 max-w-xl">
+             <div className="flex -space-x-3">
+               <div className="w-10 h-10 rounded-full border-2 border-blue-900 bg-emerald-400 flex items-center justify-center font-bold text-xs">SA</div>
+               <div className="w-10 h-10 rounded-full border-2 border-blue-900 bg-amber-400 flex items-center justify-center font-bold text-xs">JO</div>
+               <div className="w-10 h-10 rounded-full border-2 border-blue-900 bg-indigo-400 flex items-center justify-center font-bold text-xs">MI</div>
+               <div className="w-10 h-10 rounded-full border-2 border-blue-900 bg-white text-blue-900 flex items-center justify-center font-bold text-xs shadow-sm">+10k</div>
+             </div>
+             <div>
+               <div className="flex text-amber-400 text-lg mb-1">★★★★★</div>
+               <p className="text-sm font-medium text-white">Over 10,000 active students practicing.</p>
+             </div>
+          </div>
         </div>
       </div>
     </div>
